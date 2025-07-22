@@ -257,21 +257,21 @@
             
             <!-- Add Note Form -->
             <form id="noteForm" class="flex flex-col gap-2 mb-4">
-                <div class="flex gap-2">
+                <div class="relative">
                     <input 
                         type="text" 
                         id="noteInput" 
                         placeholder="Write a note..." 
-                        class="flex-1 px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        class="w-full px-3 py-2 pr-12 bg-gray-800 border border-gray-600 rounded-lg text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     >
                     <select 
                         id="noteColor" 
-                        class="px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        class="absolute right-2 top-1/2 transform -translate-y-1/2 px-2 py-1 bg-gray-700 border border-gray-600 rounded text-gray-100 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     >
-                        <option value="yellow">🟡 Yellow</option>
-                        <option value="pink">🩷 Pink</option>
-                        <option value="blue">🔵 Blue</option>
-                        <option value="green">🟢 Green</option>
+                        <option value="yellow">🟡</option>
+                        <option value="pink">🩷</option>
+                        <option value="blue">🔵</option>
+                        <option value="green">🟢</option>
                     </select>
                 </div>
                 <button 

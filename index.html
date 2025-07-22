@@ -13,6 +13,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Minimalist Homepage</title>
     
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#222222">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Homepage">
+    <meta name="description" content="A clean, minimalist, dark-mode homepage with clock, search, music player, and to-do list">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    
     <!-- Tailwind CSS via CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     
@@ -155,6 +165,16 @@
                         </svg>
                     </button>
                 </div>
+                
+                <!-- Easter Egg Output Area -->
+                <div id="easterEggOutput" class="mt-4 p-4 bg-card-bg border border-gray-700 rounded-lg hidden">
+                    <div class="text-center">
+                        <div id="easterEggResult" class="text-lg font-medium text-gray-300 mb-2"></div>
+                        <button id="easterEggClose" class="text-sm text-gray-400 hover:text-gray-200 transition-colors duration-200">
+                            Close
+                        </button>
+                    </div>
+                </div>
             </form>
         </div>
         
@@ -175,6 +195,55 @@
                 </svg>
                 Play My Playlist
             </button>
+        </div>
+        
+        <!-- Calculator Widget -->
+        <div class="bg-card-bg rounded-lg p-4 mb-8">
+            <div class="flex items-center mb-4">
+                <svg class="w-6 h-6 text-gray-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                </svg>
+                <h2 class="text-xl font-medium text-gray-300">Calculator</h2>
+            </div>
+            
+            <!-- Display Area -->
+            <div class="bg-gray-800 rounded-lg p-4 mb-4">
+                <div id="calcPrevious" class="text-sm text-gray-400 text-right mb-1 min-h-[1rem]"></div>
+                <div id="calcDisplay" class="text-2xl font-mono text-gray-100 text-right">0</div>
+            </div>
+            
+            <!-- Button Grid -->
+            <div class="grid grid-cols-4 gap-2">
+                <!-- Row 1: C, CE, √, % -->
+                <button class="calc-btn calc-clear" data-type="clear" data-value="C">C</button>
+                <button class="calc-btn calc-clear" data-type="clear" data-value="CE">CE</button>
+                <button class="calc-btn calc-operation" data-type="operation" data-value="√">√</button>
+                <button class="calc-btn calc-operation" data-type="operation" data-value="%">%</button>
+                
+                <!-- Row 2: 7, 8, 9, ÷ -->
+                <button class="calc-btn calc-digit" data-type="digit" data-value="7">7</button>
+                <button class="calc-btn calc-digit" data-type="digit" data-value="8">8</button>
+                <button class="calc-btn calc-digit" data-type="digit" data-value="9">9</button>
+                <button class="calc-btn calc-operation" data-type="operation" data-value="÷">÷</button>
+                
+                <!-- Row 3: 4, 5, 6, × -->
+                <button class="calc-btn calc-digit" data-type="digit" data-value="4">4</button>
+                <button class="calc-btn calc-digit" data-type="digit" data-value="5">5</button>
+                <button class="calc-btn calc-digit" data-type="digit" data-value="6">6</button>
+                <button class="calc-btn calc-operation" data-type="operation" data-value="×">×</button>
+                
+                <!-- Row 4: 1, 2, 3, - -->
+                <button class="calc-btn calc-digit" data-type="digit" data-value="1">1</button>
+                <button class="calc-btn calc-digit" data-type="digit" data-value="2">2</button>
+                <button class="calc-btn calc-digit" data-type="digit" data-value="3">3</button>
+                <button class="calc-btn calc-operation" data-type="operation" data-value="-">-</button>
+                
+                <!-- Row 5: 0, ., =, + -->
+                <button class="calc-btn calc-digit calc-zero" data-type="digit" data-value="0">0</button>
+                <button class="calc-btn calc-decimal" data-type="decimal" data-value=".">.</button>
+                <button class="calc-btn calc-equals" data-type="equals" data-value="=">=</button>
+                <button class="calc-btn calc-operation" data-type="operation" data-value="+">+</button>
+            </div>
         </div>
         
         <!-- Sticky Notes Widget -->
@@ -247,6 +316,21 @@
             <!-- Todo List -->
             <div id="todoList" class="space-y-2">
                 <!-- Tasks will be dynamically added here -->
+            </div>
+        </div>
+        
+        <!-- Footer -->
+        <div class="mt-8 pt-4 border-t border-gray-700">
+            <div class="flex justify-center">
+                <button 
+                    id="clearAllDataBtn" 
+                    class="px-4 py-2 text-sm text-gray-400 hover:text-red-400 transition-colors duration-200 flex items-center gap-2"
+                >
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                    </svg>
+                    Clear All Data
+                </button>
             </div>
         </div>
     </div>

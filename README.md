@@ -18,6 +18,7 @@ A clean, minimalist, dark-mode homepage built with vanilla HTML, CSS, and JavaSc
 - **🕐 Real-time Clock**: Large digital clock with 24-hour format
 - **🔍 Configurable Search**: Search with Google, DuckDuckGo, or Startpage
 - **🎵 YouTube Music**: Quick access to your favorite playlist
+- **🧮 Calculator**: Full-featured calculator with keyboard support
 - **📝 To-Do List**: Persistent task management with localStorage
 - **📱 Mobile-First**: Responsive design optimized for all devices
 - **🌙 Dark Mode**: Clean, minimalist dark theme
@@ -111,6 +112,14 @@ homepage/
 - Custom checkbox styling
 - Persistent storage with localStorage
 - Responsive design with touch-friendly targets
+
+### Calculator Widget
+- Full-featured calculator with basic and advanced operations
+- Keyboard support for quick calculations
+- Square root, percentage, and power functions
+- Error handling for invalid operations
+- Previous calculation display
+- Mobile-friendly touch interface
 
 ## 🔧 Technical Details
 

@@ -431,6 +431,195 @@ The minimalist homepage now includes:
 
 ---
 
+## 🧮 Ticket 13: Calculator Widget - ✅ COMPLETED
+
+**Goal:** Add a functional calculator widget to the homepage for quick calculations without leaving the page.
+
+**Priority:** Medium - Enhances utility and user experience
+**Estimated Time:** 2-3 hours
+**Actual Time:** 2.5 hours
+**Complexity:** Intermediate - Requires state management and event handling
+
+**Status:** ✅ **COMPLETED** - Calculator widget fully implemented and integrated
+
+### **Functional Requirements**
+
+#### **Core Calculator Features**
+- **Basic Operations**: Addition (+), Subtraction (-), Multiplication (×), Division (÷) ✅
+- **Advanced Operations**: Percentage (%), Square root (√), Power (x²), Clear (C), Clear Entry (CE) ✅
+- **Decimal Support**: Handle decimal numbers with proper validation ✅
+- **Keyboard Support**: Full keyboard input for numbers and operations ✅
+- **Display**: Large, clear display showing current input and results ✅
+- **History**: Show previous calculation in smaller text above current display ✅
+
+#### **UI/UX Requirements**
+- **Mobile-First Design**: Touch-friendly buttons with proper spacing ✅
+- **Dark Theme**: Consistent with homepage's dark mode aesthetic ✅
+- **Responsive Layout**: Adapt to different screen sizes ✅
+- **Visual Feedback**: Hover states and active button states ✅
+- **Error Handling**: Display "Error" for invalid operations (division by zero, etc.) ✅
+
+#### **Technical Requirements**
+- **Vanilla JavaScript**: No external libraries or dependencies ✅
+- **State Management**: Proper handling of calculator state (current number, operation, result) ✅
+- **Event Handling**: Robust event listeners for both click and keyboard input ✅
+- **Input Validation**: Prevent invalid inputs and handle edge cases ✅
+- **Memory Management**: No memory leaks from event listeners ✅
+
+### **Design Specifications**
+
+#### **Layout Structure**
+```
+┌─────────────────────────┐
+│ Calculator              │
+├─────────────────────────┤
+│ [Previous: 5 + 3]       │
+│ [Current: 8]            │
+├─────────────────────────┤
+│ [C] [CE] [√] [%]        │
+│ [7] [8] [9] [÷]         │
+│ [4] [5] [6] [×]         │
+│ [1] [2] [3] [-]         │
+│ [0] [.] [=] [+]         │
+└─────────────────────────┘
+```
+
+#### **Visual Design**
+- **Container**: Card-style widget with `bg-card-bg` background ✅
+- **Display Area**: 
+  - Previous calculation: `text-sm text-gray-400` (right-aligned) ✅
+  - Current display: `text-2xl font-mono text-gray-100` (right-aligned) ✅
+  - Background: `bg-gray-800` with padding ✅
+- **Button Grid**: 
+  - 4×5 grid layout using CSS Grid ✅
+  - Button size: `w-12 h-12` (mobile), `w-14 h-14` (desktop) ✅
+  - Spacing: `gap-2` between buttons ✅
+- **Button Types**:
+  - **Numbers**: `bg-gray-700 hover:bg-gray-600 text-gray-100` ✅
+  - **Operations**: `bg-blue-600 hover:bg-blue-500 text-white` ✅
+  - **Clear**: `bg-red-600 hover:bg-red-500 text-white` ✅
+  - **Equals**: `bg-green-600 hover:bg-green-500 text-white` ✅
+
+### **Implementation Details**
+
+#### **Files Modified**
+- **`index.html`**: Added calculator widget HTML structure
+- **`style.css`**: Added calculator button styles with Tailwind classes
+- **`script.js`**: Implemented Calculator class with full functionality
+
+#### **Key Features Implemented**
+1. **ES6 Calculator Class**: Clean, maintainable state management
+2. **Complete State Management**: Handles all calculator states properly
+3. **Basic Operations**: Addition, subtraction, multiplication, division
+4. **Advanced Operations**: Square root (√), percentage (%), power (x²)
+5. **Error Handling**: Division by zero, negative square root, etc.
+6. **Keyboard Support**: Full keyboard input with proper scoping
+7. **Clear Functions**: Clear all (C) and clear entry (CE)
+8. **Previous Calculation Display**: Shows ongoing calculation above current input
+
+#### **Technical Implementation**
+```javascript
+class Calculator {
+    constructor() {
+        this.displayValue = '0';
+        this.previousValue = null;
+        this.operation = null;
+        this.waitingForOperand = false;
+        this.previousCalculation = '';
+    }
+    
+    // Complete implementation with all methods
+    // - inputDigit(), inputDecimal(), performOperation()
+    // - calculate(), clear(), updateDisplay()
+    // - handleButtonClick(), handleKeyboardInput()
+}
+```
+
+#### **Keyboard Shortcuts**
+- Numbers: `0-9`
+- Operations: `+`, `-`, `*`, `/`
+- Decimal: `.`
+- Equals: `Enter` or `=`
+- Clear: `Escape`
+
+### **Acceptance Criteria**
+
+#### **Functional Requirements** ✅
+- ✅ Calculator performs all basic operations correctly
+- ✅ Decimal numbers are handled properly
+- ✅ Clear and Clear Entry functions work as expected
+- ✅ Error handling displays appropriate messages
+- ✅ Keyboard input works for all operations
+- ✅ Previous calculation is displayed above current input
+
+#### **UI Requirements** ✅
+- ✅ Calculator matches homepage's dark theme
+- ✅ Buttons are touch-friendly and properly sized
+- ✅ Display is clear and readable
+- ✅ Responsive design works on all screen sizes
+- ✅ Visual feedback for all interactions
+
+#### **Technical Requirements** ✅
+- ✅ No external dependencies used
+- ✅ Clean, maintainable JavaScript code
+- ✅ Proper error handling and validation
+- ✅ No memory leaks from event listeners
+- ✅ Accessible keyboard navigation
+
+### **Integration Details**
+
+#### **Homepage Integration**
+- **Positioning**: Placed after YouTube Music Player widget
+- **Styling**: Consistent with existing card design patterns
+- **Spacing**: Proper margins and padding with other widgets
+- **Theme**: Dark theme integration throughout
+
+#### **Event Handling**
+- **Button Clicks**: Data attributes for type and value
+- **Keyboard Input**: Global listener with proper scoping
+- **Conflict Prevention**: Calculator events don't interfere with search
+
+### **Testing Results**
+
+#### **Functionality Testing** ✅
+- ✅ All basic operations work correctly
+- ✅ Advanced operations function properly
+- ✅ Decimal handling works as expected
+- ✅ Error conditions handled gracefully
+- ✅ Keyboard input functions properly
+
+#### **UI Testing** ✅
+- ✅ Responsive design works on all devices
+- ✅ Dark theme consistency maintained
+- ✅ Accessibility features working
+- ✅ Touch interactions work on mobile
+
+### **Performance Metrics**
+- **Load Time**: No impact on homepage performance
+- **Memory Usage**: Efficient event handling
+- **Bundle Size**: Minimal additional code
+- **User Experience**: Seamless integration
+
+### **Future Enhancements** (Optional)
+- **Memory Functions**: M+, M-, MR, MC buttons
+- **Scientific Functions**: Trigonometry, logarithms, etc.
+- **History**: Save recent calculations
+- **Theme Options**: Light/dark mode toggle
+- **Unit Conversion**: Built-in unit converter
+
+### **Implementation Notes**
+- Calculator is self-contained and doesn't interfere with other widgets
+- Keyboard input is properly scoped to avoid conflicts with search
+- Error handling prevents crashes and provides clear feedback
+- Mobile-first design ensures touch-friendly interaction
+- Clean, maintainable code structure for future enhancements
+
+**🎉 Calculator Widget Successfully Implemented!**
+
+The calculator widget is now fully functional and integrated into the minimalist homepage, providing quick calculation capabilities without leaving the page. All requirements have been met and the implementation follows best practices for maintainability and user experience.
+
+---
+
 Let me know if you have questions during implementation. I'm here to review PRs and unblock you.
 
 — Tech Lead

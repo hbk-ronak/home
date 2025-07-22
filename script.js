@@ -125,7 +125,58 @@ const bangEngines = {
     's': 'startpage'
 };
 
+// Easter egg pattern and commands
+const easterEggPattern = /^:(\w+)/;
+const easterEggCommands = {
+    'roll': () => Math.floor(Math.random() * 6) + 1,
+    'flip': () => Math.random() < 0.5 ? 'Heads' : 'Tails',
+    'ascii': () => '😊'
+};
+
 let currentSearchEngine = 'google';
+let isDropdownOpen = false; // Track dropdown state globally
+
+/**
+ * Shows easter egg result in the output area
+ * @param {string} result - The result to display
+ */
+function showEasterEggResult(result) {
+    const outputArea = document.getElementById('easterEggOutput');
+    const outputText = document.getElementById('easterEggResult');
+    
+    if (outputArea && outputText) {
+        outputText.textContent = result;
+        outputArea.classList.remove('hidden');
+    } else {
+        console.error('❌ Easter egg output elements not found!');
+    }
+}
+
+/**
+ * Hides the easter egg output area
+ */
+function hideEasterEggResult() {
+    const outputArea = document.getElementById('easterEggOutput');
+    
+    if (outputArea) {
+        outputArea.classList.add('hidden');
+    } else {
+        console.error('❌ Easter egg output element not found!');
+    }
+}
+
+/**
+ * Handles clicking outside the search engine dropdown to close it
+ * @param {Event} event - Click event
+ */
+function handleClickOutsideDropdown(event) {
+    const dropdown = document.getElementById('searchEngineDropdown');
+    const toggle = document.getElementById('searchEngineToggle');
+    
+    if (dropdown && !dropdown.contains(event.target) && !toggle.contains(event.target)) {
+        closeSearchEngineDropdown();
+    }
+}
 
 /**
  * Updates the search engine display
@@ -149,9 +200,40 @@ function updateSearchEngineDisplay(engine) {
  * Toggles the search engine dropdown
  */
 function toggleSearchEngineDropdown() {
-    const dropdown = document.getElementById('searchEngineDropdown');
-    if (dropdown) {
-        dropdown.classList.toggle('hidden');
+    try {
+        isDropdownOpen = !isDropdownOpen;
+        if (isDropdownOpen) {
+            const dropdown = document.getElementById('searchEngineDropdown');
+            if (dropdown) {
+                dropdown.classList.remove('hidden');
+            } else {
+                console.error('Dropdown element not found');
+                isDropdownOpen = false;
+            }
+        } else {
+            const dropdown = document.getElementById('searchEngineDropdown');
+            if (dropdown) {
+                dropdown.classList.add('hidden');
+            }
+        }
+    } catch (error) {
+        console.error('Error toggling dropdown:', error);
+        isDropdownOpen = false;
+    }
+}
+
+/**
+ * Closes the search engine dropdown
+ */
+function closeSearchEngineDropdown() {
+    try {
+        isDropdownOpen = false;
+        const dropdown = document.getElementById('searchEngineDropdown');
+        if (dropdown) {
+            dropdown.classList.add('hidden');
+        }
+    } catch (error) {
+        console.error('Error closing dropdown:', error);
     }
 }
 
@@ -162,7 +244,7 @@ function toggleSearchEngineDropdown() {
 function selectSearchEngine(engine) {
     updateSearchEngineDisplay(engine);
     localStorage.setItem('searchEngine', engine);
-    toggleSearchEngineDropdown();
+    closeSearchEngineDropdown();
 }
 
 /**
@@ -177,6 +259,21 @@ function handleSearch(event) {
     if (!query) {
         alert('Please enter a search query');
         return;
+    }
+    
+    // Check for easter egg commands first
+    const easterEggMatch = query.match(easterEggPattern);
+    if (easterEggMatch) {
+        const command = easterEggMatch[1];
+        if (easterEggCommands[command]) {
+            const result = easterEggCommands[command]();
+            showEasterEggResult(result);
+            document.getElementById('searchInput').value = '';
+            return;
+        } else {
+            alert(`Unknown command: ${command}`);
+            return;
+        }
     }
     
     // Check for bang commands (e.g., !g javascript, !d cats)
@@ -210,8 +307,10 @@ function handleSearch(event) {
  */
 function loadSearchPreference() {
     const savedEngine = localStorage.getItem('searchEngine');
-    if (savedEngine && searchEngines[savedEngine]) {
+    if (savedEngine) {
         updateSearchEngineDisplay(savedEngine);
+    } else {
+        updateSearchEngineDisplay('google');
     }
 }
 
@@ -227,16 +326,12 @@ document.querySelectorAll('.search-engine-option').forEach(option => {
 });
 
 // Close dropdown when clicking outside
-document.addEventListener('click', (event) => {
-    const dropdown = document.getElementById('searchEngineDropdown');
-    const toggle = document.getElementById('searchEngineToggle');
-    
-    if (dropdown && !dropdown.contains(event.target) && !toggle.contains(event.target)) {
-        dropdown.classList.add('hidden');
-    }
-});
+document.addEventListener('click', handleClickOutsideDropdown);
 
 loadSearchPreference();
+
+// Initialize dropdown state on page load
+isDropdownOpen = false;
 
 // Focus search input on page load
 document.addEventListener('DOMContentLoaded', () => {
@@ -545,6 +640,9 @@ loadNotes();
 
 let currentCalendarDate = new Date();
 
+// Calendar events data
+let calendarEvents = {};
+
 /**
  * Gets the number of days in a month
  * @param {number} year - Year
@@ -566,6 +664,76 @@ function getFirstDayOfMonth(year, month) {
 }
 
 /**
+ * Gets a date key for localStorage storage
+ * @param {number} year - Year
+ * @param {number} month - Month (0-11)
+ * @param {number} day - Day of month
+ * @returns {string} Date key in YYYY-MM-DD format
+ */
+function getDateKey(year, month, day) {
+    return new Date(year, month, day).toISOString().split('T')[0];
+}
+
+/**
+ * Loads calendar events from localStorage
+ */
+function loadCalendarEvents() {
+    const saved = localStorage.getItem('calendarEvents');
+    if (saved) {
+        calendarEvents = JSON.parse(saved);
+    }
+}
+
+/**
+ * Saves calendar events to localStorage
+ */
+function saveCalendarEvents() {
+    localStorage.setItem('calendarEvents', JSON.stringify(calendarEvents));
+}
+
+/**
+ * Adds an event to a specific date
+ * @param {string} dateKey - Date key in YYYY-MM-DD format
+ * @param {string} eventText - Event description
+ */
+function addCalendarEvent(dateKey, eventText) {
+    if (eventText.trim()) {
+        calendarEvents[dateKey] = eventText.trim();
+        saveCalendarEvents();
+    }
+}
+
+/**
+ * Removes an event from a specific date
+ * @param {string} dateKey - Date key in YYYY-MM-DD format
+ */
+function removeCalendarEvent(dateKey) {
+    delete calendarEvents[dateKey];
+    saveCalendarEvents();
+}
+
+/**
+ * Shows event input modal
+ * @param {string} dateKey - Date key in YYYY-MM-DD format
+ * @param {string} currentEvent - Current event text (if editing)
+ */
+function showEventModal(dateKey, currentEvent = '') {
+    const eventText = prompt(
+        currentEvent ? 'Edit event:' : 'Add event for this date:',
+        currentEvent
+    );
+    
+    if (eventText !== null) {
+        if (eventText.trim()) {
+            addCalendarEvent(dateKey, eventText);
+        } else if (currentEvent) {
+            removeCalendarEvent(dateKey);
+        }
+        renderCalendar();
+    }
+}
+
+/**
  * Generates calendar days for a given month
  * @param {number} year - Year
  * @param {number} month - Month (0-11)
@@ -583,12 +751,18 @@ function generateCalendarDays(year, month) {
     
     // Add days of the month
     for (let day = 1; day <= daysInMonth; day++) {
+        const dateKey = getDateKey(year, month, day);
         const isToday = new Date().toDateString() === new Date(year, month, day).toDateString();
+        const hasEvent = calendarEvents[dateKey];
+        
         days.push({ 
             day: day, 
             isEmpty: false, 
             isToday: isToday,
-            isCurrentMonth: true
+            isCurrentMonth: true,
+            dateKey: dateKey,
+            hasEvent: hasEvent,
+            eventText: hasEvent
         });
     }
     
@@ -631,7 +805,7 @@ function renderCalendar() {
             dayElement.className = 'text-xs py-1 text-gray-600';
             dayElement.textContent = '';
         } else {
-            let className = 'text-xs py-1 cursor-pointer hover:bg-gray-700 rounded transition-colors duration-200';
+            let className = 'text-xs py-1 cursor-pointer hover:bg-gray-700 rounded transition-colors duration-200 relative';
             
             if (dayObj.isToday) {
                 className += ' bg-blue-600 text-white font-medium';
@@ -639,8 +813,23 @@ function renderCalendar() {
                 className += ' text-gray-300';
             }
             
+            // Add event indicator
+            if (dayObj.hasEvent) {
+                className += ' after:content-[""] after:absolute after:bottom-1 after:right-1 after:w-1 after:h-1 after:bg-yellow-400 after:rounded-full';
+            }
+            
             dayElement.className = className;
             dayElement.textContent = dayObj.day;
+            
+            // Add click handler for event management
+            dayElement.addEventListener('click', () => {
+                showEventModal(dayObj.dateKey, dayObj.eventText);
+            });
+            
+            // Add tooltip for events
+            if (dayObj.hasEvent) {
+                dayElement.title = dayObj.eventText;
+            }
         }
         
         calendarDays.appendChild(dayElement);
@@ -666,7 +855,42 @@ function nextMonth() {
 // Initialize calendar functionality
 document.getElementById('prevMonth')?.addEventListener('click', previousMonth);
 document.getElementById('nextMonth')?.addEventListener('click', nextMonth);
+loadCalendarEvents();
 renderCalendar();
+
+// ============================================================================
+// DATA MANAGEMENT (Ticket 2)
+// ============================================================================
+
+/**
+ * Clears all data from localStorage
+ */
+function clearAllData() {
+    const confirmed = confirm(
+        'Are you sure you want to clear all data?\n\n' +
+        'This will remove:\n' +
+        '• All to-do tasks\n' +
+        '• All sticky notes\n' +
+        '• All calendar events\n' +
+        '• Search engine preferences\n\n' +
+        'This action cannot be undone.'
+    );
+    
+    if (confirmed) {
+        localStorage.clear();
+        location.reload();
+    }
+}
+
+// Initialize data management functionality
+document.getElementById('clearAllDataBtn')?.addEventListener('click', clearAllData);
+
+// Initialize easter egg functionality
+document.getElementById('easterEggClose')?.addEventListener('click', (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    hideEasterEggResult();
+});
 
 // ============================================================================
 // UTILITY FUNCTIONS
@@ -697,4 +921,318 @@ if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initializeApp);
 } else {
     initializeApp();
-} 
+}
+
+// ============================================================================
+// DEBUG FUNCTIONS
+// ============================================================================
+
+/**
+ * Test function to check dropdown functionality (for debugging)
+ */
+function testDropdownFunctionality() {
+    const dropdown = document.getElementById('searchEngineDropdown');
+    const toggle = document.getElementById('searchEngineToggle');
+    const easterEggOutput = document.getElementById('easterEggOutput');
+    
+    console.log('🧪 TEST: Checking dropdown functionality...');
+    console.log('🧪 Dropdown element:', !!dropdown);
+    console.log('🧪 Toggle element:', !!toggle);
+    console.log('🧪 Easter egg output:', !!easterEggOutput);
+    
+    if (dropdown) {
+        console.log('🧪 Dropdown classes:', dropdown.className);
+        console.log('🧪 Dropdown hidden:', dropdown.classList.contains('hidden'));
+    }
+    
+    if (easterEggOutput) {
+        console.log('🧪 Easter egg classes:', easterEggOutput.className);
+        console.log('🧪 Easter egg hidden:', easterEggOutput.classList.contains('hidden'));
+    }
+    
+    console.log('🧪 isDropdownOpen state:', isDropdownOpen);
+}
+
+/**
+ * Force reset all UI elements to correct state (for debugging)
+ */
+function forceResetUI() {
+    // Force close dropdown
+    const dropdown = document.getElementById('searchEngineDropdown');
+    if (dropdown) {
+        dropdown.classList.add('hidden');
+        isDropdownOpen = false;
+    }
+    
+    // Force hide easter egg output
+    const easterEggOutput = document.getElementById('easterEggOutput');
+    if (easterEggOutput) {
+        easterEggOutput.classList.add('hidden');
+    }
+    
+    // Clear search input
+    const searchInput = document.getElementById('searchInput');
+    if (searchInput) {
+        searchInput.value = '';
+        searchInput.focus();
+    }
+}
+
+// Make test functions globally available
+window.testDropdownFunctionality = testDropdownFunctionality;
+window.forceResetUI = forceResetUI;
+
+// ============================================================================
+// CALCULATOR WIDGET (Ticket 13)
+// ============================================================================
+
+/**
+ * Calculator class for handling all calculator operations
+ */
+class Calculator {
+    constructor() {
+        this.displayValue = '0';
+        this.previousValue = null;
+        this.operation = null;
+        this.waitingForOperand = false;
+        this.previousCalculation = '';
+        
+        this.displayElement = document.getElementById('calcDisplay');
+        this.previousElement = document.getElementById('calcPrevious');
+        
+        this.initializeEventListeners();
+    }
+    
+    /**
+     * Initialize event listeners for calculator buttons and keyboard
+     */
+    initializeEventListeners() {
+        // Button click events
+        document.querySelectorAll('.calc-btn').forEach(button => {
+            button.addEventListener('click', (e) => this.handleButtonClick(e));
+        });
+        
+        // Keyboard events (with proper scoping)
+        document.addEventListener('keydown', (e) => this.handleKeyboardInput(e));
+    }
+    
+    /**
+     * Handle button click events
+     */
+    handleButtonClick(event) {
+        const button = event.currentTarget;
+        const type = button.dataset.type;
+        const value = button.dataset.value;
+        
+        this.processInput(type, value);
+        this.updateDisplay();
+    }
+    
+    /**
+     * Handle keyboard input with proper scoping
+     */
+    handleKeyboardInput(event) {
+        // Only handle calculator keys when no other input is active
+        if (document.activeElement.tagName === 'INPUT') return;
+        
+        const key = event.key;
+        const keyMap = {
+            '0': { type: 'digit', value: '0' },
+            '1': { type: 'digit', value: '1' },
+            '2': { type: 'digit', value: '2' },
+            '3': { type: 'digit', value: '3' },
+            '4': { type: 'digit', value: '4' },
+            '5': { type: 'digit', value: '5' },
+            '6': { type: 'digit', value: '6' },
+            '7': { type: 'digit', value: '7' },
+            '8': { type: 'digit', value: '8' },
+            '9': { type: 'digit', value: '9' },
+            '.': { type: 'decimal', value: '.' },
+            '+': { type: 'operation', value: '+' },
+            '-': { type: 'operation', value: '-' },
+            '*': { type: 'operation', value: '×' },
+            '/': { type: 'operation', value: '÷' },
+            'Enter': { type: 'equals', value: '=' },
+            '=': { type: 'equals', value: '=' },
+            'Escape': { type: 'clear', value: 'C' }
+        };
+        
+        if (keyMap[key]) {
+            event.preventDefault();
+            this.processInput(keyMap[key].type, keyMap[key].value);
+            this.updateDisplay();
+        }
+    }
+    
+    /**
+     * Process input based on type and value
+     */
+    processInput(type, value) {
+        switch (type) {
+            case 'digit':
+                this.inputDigit(value);
+                break;
+            case 'decimal':
+                this.inputDecimal();
+                break;
+            case 'operation':
+                this.performOperation(value);
+                break;
+            case 'clear':
+                this.clear(value === 'CE' ? 'entry' : 'all');
+                break;
+            case 'equals':
+                this.calculate();
+                break;
+        }
+    }
+    
+    /**
+     * Handle digit input
+     */
+    inputDigit(digit) {
+        if (this.waitingForOperand) {
+            this.displayValue = digit;
+            this.waitingForOperand = false;
+        } else {
+            this.displayValue = this.displayValue === '0' ? digit : this.displayValue + digit;
+        }
+    }
+    
+    /**
+     * Handle decimal point input
+     */
+    inputDecimal() {
+        if (this.waitingForOperand) {
+            this.displayValue = '0.';
+            this.waitingForOperand = false;
+            return;
+        }
+        
+        if (!this.displayValue.includes('.')) {
+            this.displayValue += '.';
+        }
+    }
+    
+    /**
+     * Perform mathematical operation
+     */
+    performOperation(nextOperation) {
+        const inputValue = parseFloat(this.displayValue);
+        
+        if (this.previousValue === null) {
+            this.previousValue = inputValue;
+        } else if (this.operation) {
+            const result = this.calculate(this.previousValue, inputValue, this.operation);
+            this.displayValue = String(result);
+            this.previousValue = result;
+        }
+        
+        this.waitingForOperand = true;
+        this.operation = nextOperation;
+        this.updatePreviousCalculation();
+    }
+    
+    /**
+     * Perform calculation between two values
+     */
+    calculate(firstValue = null, secondValue = null, operation = null) {
+        const inputValue = parseFloat(this.displayValue);
+        
+        if (firstValue === null) {
+            // Final calculation (equals button)
+            if (this.previousValue === null || this.operation === null) {
+                return inputValue;
+            }
+            
+            const result = this.calculate(this.previousValue, inputValue, this.operation);
+            this.displayValue = String(result);
+            this.previousValue = null;
+            this.operation = null;
+            this.waitingForOperand = true;
+            this.previousCalculation = '';
+            return result;
+        } else {
+            // Intermediate calculation
+            switch (operation) {
+                case '+':
+                    return firstValue + secondValue;
+                case '-':
+                    return firstValue - secondValue;
+                case '×':
+                    return firstValue * secondValue;
+                case '÷':
+                    if (secondValue === 0) {
+                        this.displayValue = 'Error';
+                        this.previousValue = null;
+                        this.operation = null;
+                        this.waitingForOperand = true;
+                        return 'Error';
+                    }
+                    return firstValue / secondValue;
+                case '%':
+                    return firstValue % secondValue;
+                case '√':
+                    if (secondValue < 0) {
+                        this.displayValue = 'Error';
+                        this.previousValue = null;
+                        this.operation = null;
+                        this.waitingForOperand = true;
+                        return 'Error';
+                    }
+                    return Math.sqrt(secondValue);
+                default:
+                    return secondValue;
+            }
+        }
+    }
+    
+    /**
+     * Clear calculator state
+     */
+    clear(type = 'all') {
+        if (type === 'all') {
+            this.displayValue = '0';
+            this.previousValue = null;
+            this.operation = null;
+            this.waitingForOperand = false;
+            this.previousCalculation = '';
+        } else {
+            // Clear entry only
+            this.displayValue = '0';
+            this.waitingForOperand = false;
+        }
+    }
+    
+    /**
+     * Update the previous calculation display
+     */
+    updatePreviousCalculation() {
+        if (this.previousValue !== null && this.operation) {
+            this.previousCalculation = `${this.previousValue} ${this.operation}`;
+        }
+    }
+    
+    /**
+     * Update the calculator display
+     */
+    updateDisplay() {
+        if (this.displayElement) {
+            this.displayElement.textContent = this.displayValue;
+        }
+        
+        if (this.previousElement) {
+            this.previousElement.textContent = this.previousCalculation;
+        }
+    }
+}
+
+// Initialize calculator when DOM is loaded
+let calculator;
+document.addEventListener('DOMContentLoaded', () => {
+    calculator = new Calculator();
+});
+
+// ============================================================================
+// END OF CALCULATOR WIDGET
+// ============================================================================ 

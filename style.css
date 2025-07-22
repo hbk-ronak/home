@@ -144,8 +144,4 @@ html {
 
 .calc-decimal:hover {
     background-color: #4b5563;
-}
-
-.calc-zero {
-    grid-column: span 2;
 } 

@@ -28,7 +28,59 @@ updateClock();
 setInterval(updateClock, 1000);
 
 // ============================================================================
-// SEARCH FUNCTIONALITY (Ticket 3)
+// SALUTATION MESSAGES (Ticket 12)
+// ============================================================================
+
+// Salutation messages array
+const salutations = [
+    'Good Morning',
+    'Rise and Shine',
+    'Hello there',
+    'Welcome back',
+    'Greetings',
+    'Hey there',
+    'Good to see you',
+    'Hello friend',
+    'Welcome',
+    'Hi there'
+];
+
+/**
+ * Gets a time-aware greeting based on current hour
+ * @returns {string} Time-appropriate greeting
+ */
+function getTimeAwareGreeting() {
+    const hour = new Date().getHours();
+    if (hour < 12) return 'Good Morning';
+    if (hour < 17) return 'Good Afternoon';
+    return 'Good Evening';
+}
+
+/**
+ * Sets a random salutation message
+ */
+function setRandomSalutation() {
+    const salutationElement = document.getElementById('salutation');
+    if (!salutationElement) return;
+    
+    // 70% chance for time-aware greeting, 30% for random salutation
+    const useTimeAware = Math.random() < 0.7;
+    
+    let message;
+    if (useTimeAware) {
+        message = getTimeAwareGreeting();
+    } else {
+        message = salutations[Math.floor(Math.random() * salutations.length)];
+    }
+    
+    salutationElement.textContent = message;
+}
+
+// Initialize salutation on page load
+setRandomSalutation();
+
+// ============================================================================
+// SEARCH FUNCTIONALITY (Tickets 3, 9)
 // ============================================================================
 
 // Search engine configurations
@@ -38,26 +90,118 @@ const searchEngines = {
     startpage: "https://www.startpage.com/sp/search?query="
 };
 
+// Search engine icons and names
+const searchEngineData = {
+    google: {
+        name: 'Google',
+        icon: `<svg class="w-5 h-5" viewBox="0 0 24 24">
+            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+        </svg>`
+    },
+    duckduckgo: {
+        name: 'DuckDuckGo',
+        icon: `<svg class="w-5 h-5" viewBox="0 0 24 24" fill="#DE5833">
+            <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm0 2c5.514 0 10 4.486 10 10s-4.486 10-10 10S2 17.514 2 12 6.486 2 12 2zm0 3c-3.866 0-7 3.134-7 7s3.134 7 7 7 7-3.134 7-7-3.134-7-7-7zm0 2c2.761 0 5 2.239 5 5s-2.239 5-5 5-5-2.239-5-5 2.239-5 5-5z"/>
+        </svg>`
+    },
+    startpage: {
+        name: 'Startpage',
+        icon: `<svg class="w-5 h-5" viewBox="0 0 24 24" fill="#00A4DC">
+            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+        </svg>`
+    }
+};
+
+// Bang pattern for quick engine selection
+const bangPattern = /^!(\w+)\s+(.*)$/;
+
+// Bang to engine mapping
+const bangEngines = {
+    'g': 'google',
+    'd': 'duckduckgo',
+    's': 'startpage'
+};
+
+let currentSearchEngine = 'google';
+
 /**
- * Handles search form submission
+ * Updates the search engine display
+ * @param {string} engine - Search engine key
+ */
+function updateSearchEngineDisplay(engine) {
+    const iconElement = document.getElementById('searchEngineIcon');
+    const nameElement = document.getElementById('searchEngineName');
+    const inputElement = document.getElementById('searchInput');
+    
+    if (iconElement && nameElement && inputElement) {
+        const engineData = searchEngineData[engine];
+        iconElement.innerHTML = engineData.icon;
+        nameElement.textContent = engineData.name;
+        inputElement.placeholder = `Search with ${engineData.name} or enter address`;
+        currentSearchEngine = engine;
+    }
+}
+
+/**
+ * Toggles the search engine dropdown
+ */
+function toggleSearchEngineDropdown() {
+    const dropdown = document.getElementById('searchEngineDropdown');
+    if (dropdown) {
+        dropdown.classList.toggle('hidden');
+    }
+}
+
+/**
+ * Handles search engine selection from dropdown
+ * @param {string} engine - Selected search engine
+ */
+function selectSearchEngine(engine) {
+    updateSearchEngineDisplay(engine);
+    localStorage.setItem('searchEngine', engine);
+    toggleSearchEngineDropdown();
+}
+
+/**
+ * Handles search form submission with bang support
  * @param {Event} event - Form submit event
  */
 function handleSearch(event) {
     event.preventDefault();
     
     const query = document.getElementById('searchInput').value.trim();
-    const selectedEngine = document.getElementById('searchEngine').value;
     
     if (!query) {
         alert('Please enter a search query');
         return;
     }
     
-    // Save search engine preference
-    localStorage.setItem('searchEngine', selectedEngine);
+    // Check for bang commands (e.g., !g javascript, !d cats)
+    const bangMatch = query.match(bangPattern);
+    if (bangMatch) {
+        const bangCommand = bangMatch[1].toLowerCase();
+        const searchQuery = bangMatch[2].trim();
+        
+        if (bangEngines[bangCommand]) {
+            const selectedEngine = bangEngines[bangCommand];
+            updateSearchEngineDisplay(selectedEngine);
+            localStorage.setItem('searchEngine', selectedEngine);
+        } else {
+            // Invalid bang command, use current engine
+            alert(`Unknown search command: !${bangCommand}. Using current engine.`);
+        }
+        
+        // Use the query without the bang command
+        const searchUrl = searchEngines[currentSearchEngine] + encodeURIComponent(searchQuery);
+        window.location.href = searchUrl;
+        return;
+    }
     
-    // Redirect to search engine
-    const searchUrl = searchEngines[selectedEngine] + encodeURIComponent(query);
+    // No bang command, use current engine
+    const searchUrl = searchEngines[currentSearchEngine] + encodeURIComponent(query);
     window.location.href = searchUrl;
 }
 
@@ -67,13 +211,40 @@ function handleSearch(event) {
 function loadSearchPreference() {
     const savedEngine = localStorage.getItem('searchEngine');
     if (savedEngine && searchEngines[savedEngine]) {
-        document.getElementById('searchEngine').value = savedEngine;
+        updateSearchEngineDisplay(savedEngine);
     }
 }
 
 // Initialize search functionality
 document.getElementById('searchForm').addEventListener('submit', handleSearch);
+document.getElementById('searchEngineToggle').addEventListener('click', toggleSearchEngineDropdown);
+
+// Add event listeners for search engine options
+document.querySelectorAll('.search-engine-option').forEach(option => {
+    option.addEventListener('click', () => {
+        selectSearchEngine(option.dataset.engine);
+    });
+});
+
+// Close dropdown when clicking outside
+document.addEventListener('click', (event) => {
+    const dropdown = document.getElementById('searchEngineDropdown');
+    const toggle = document.getElementById('searchEngineToggle');
+    
+    if (dropdown && !dropdown.contains(event.target) && !toggle.contains(event.target)) {
+        dropdown.classList.add('hidden');
+    }
+});
+
 loadSearchPreference();
+
+// Focus search input on page load
+document.addEventListener('DOMContentLoaded', () => {
+    const searchInput = document.getElementById('searchInput');
+    if (searchInput) {
+        searchInput.focus();
+    }
+});
 
 // ============================================================================
 // YOUTUBE MUSIC PLAYER (Ticket 4)
@@ -84,8 +255,8 @@ loadSearchPreference();
  * Note: Replace PLAYLIST_ID with actual playlist ID
  */
 function handleMusicPlay() {
-    const playlistId = 'PLAYLIST_ID'; // TODO: Replace with actual playlist ID
-    const musicUrl = `https://music.youtube.com/playlist?list=RDCLAK5uy_nFD4lodGvr1kb0xlJOOfEi0tGWI7cQKK0&play=1`;
+    const playlistId = 'RDCLAK5uy_nFD4lodGvr1kb0xlJOOfEi0tGWI7cQKK0'; // TODO: Replace with actual playlist ID
+    const musicUrl = `https://music.youtube.com/playlist?list=${playlistId}&play=1`;
     window.open(musicUrl, '_blank');
 }
 
@@ -234,6 +405,268 @@ function handleTodoSubmit(event) {
 // Initialize todo functionality
 document.getElementById('todoForm').addEventListener('submit', handleTodoSubmit);
 loadTodos();
+
+// ============================================================================
+// STICKY NOTES FUNCTIONALITY (Ticket 11)
+// ============================================================================
+
+let stickyNotes = [];
+
+// Color options for sticky notes
+const noteColors = [
+    { name: 'yellow', class: 'bg-yellow-200 text-yellow-900' },
+    { name: 'pink', class: 'bg-pink-200 text-pink-900' },
+    { name: 'blue', class: 'bg-blue-200 text-blue-900' },
+    { name: 'green', class: 'bg-green-200 text-green-900' }
+];
+
+/**
+ * Generates a unique ID for sticky notes
+ * @returns {string} Unique ID
+ */
+function generateNoteId() {
+    return Date.now().toString(36) + Math.random().toString(36).substr(2);
+}
+
+/**
+ * Saves sticky notes to localStorage
+ */
+function saveNotes() {
+    localStorage.setItem('stickyNotes', JSON.stringify(stickyNotes));
+}
+
+/**
+ * Loads sticky notes from localStorage
+ */
+function loadNotes() {
+    const saved = localStorage.getItem('stickyNotes');
+    if (saved) {
+        stickyNotes = JSON.parse(saved);
+        renderNotes();
+    }
+}
+
+/**
+ * Renders all sticky notes to the DOM
+ */
+function renderNotes() {
+    const notesGrid = document.getElementById('notesGrid');
+    notesGrid.innerHTML = '';
+    
+    stickyNotes.forEach(note => {
+        const noteElement = createNoteElement(note);
+        notesGrid.appendChild(noteElement);
+    });
+}
+
+/**
+ * Creates a DOM element for a sticky note
+ * @param {Object} note - Note object with id, text, color, and createdAt properties
+ * @returns {HTMLElement} Note element
+ */
+function createNoteElement(note) {
+    const noteDiv = document.createElement('div');
+    const colorClass = noteColors.find(c => c.name === note.color)?.class || noteColors[0].class;
+    
+    noteDiv.className = `p-3 rounded-lg shadow-md relative group ${colorClass}`;
+    noteDiv.innerHTML = `
+        <div class="text-sm font-medium mb-2">${note.text}</div>
+        <button class="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200 text-gray-600 hover:text-gray-800">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+        </button>
+    `;
+    
+    // Add delete functionality
+    const deleteBtn = noteDiv.querySelector('button');
+    deleteBtn.addEventListener('click', () => deleteNote(note.id));
+    
+    return noteDiv;
+}
+
+/**
+ * Adds a new sticky note
+ * @param {string} text - Note text
+ * @param {string} color - Note color
+ */
+function addNote(text, color) {
+    if (!text.trim()) {
+        alert('Please enter a note');
+        return;
+    }
+    
+    const newNote = {
+        id: generateNoteId(),
+        text: text.trim(),
+        color: color,
+        createdAt: Date.now()
+    };
+    
+    stickyNotes.push(newNote);
+    saveNotes();
+    renderNotes();
+}
+
+/**
+ * Deletes a sticky note
+ * @param {string} noteId - Note ID to delete
+ */
+function deleteNote(noteId) {
+    stickyNotes = stickyNotes.filter(n => n.id !== noteId);
+    saveNotes();
+    renderNotes();
+}
+
+/**
+ * Handles note form submission
+ * @param {Event} event - Form submit event
+ */
+function handleNoteSubmit(event) {
+    event.preventDefault();
+    
+    const input = document.getElementById('noteInput');
+    const colorSelect = document.getElementById('noteColor');
+    const text = input.value;
+    const color = colorSelect.value;
+    
+    addNote(text, color);
+    input.value = '';
+    input.focus();
+}
+
+// Initialize sticky notes functionality
+document.getElementById('noteForm').addEventListener('submit', handleNoteSubmit);
+loadNotes();
+
+// ============================================================================
+// MINI CALENDAR WIDGET (Ticket 10)
+// ============================================================================
+
+let currentCalendarDate = new Date();
+
+/**
+ * Gets the number of days in a month
+ * @param {number} year - Year
+ * @param {number} month - Month (0-11)
+ * @returns {number} Number of days in the month
+ */
+function getDaysInMonth(year, month) {
+    return new Date(year, month + 1, 0).getDate();
+}
+
+/**
+ * Gets the day of week for the first day of a month
+ * @param {number} year - Year
+ * @param {number} month - Month (0-11)
+ * @returns {number} Day of week (0-6, where 0 is Sunday)
+ */
+function getFirstDayOfMonth(year, month) {
+    return new Date(year, month, 1).getDay();
+}
+
+/**
+ * Generates calendar days for a given month
+ * @param {number} year - Year
+ * @param {number} month - Month (0-11)
+ * @returns {Array} Array of day objects
+ */
+function generateCalendarDays(year, month) {
+    const daysInMonth = getDaysInMonth(year, month);
+    const firstDayOfMonth = getFirstDayOfMonth(year, month);
+    const days = [];
+    
+    // Add empty cells for days before the first day of the month
+    for (let i = 0; i < firstDayOfMonth; i++) {
+        days.push({ day: '', isEmpty: true });
+    }
+    
+    // Add days of the month
+    for (let day = 1; day <= daysInMonth; day++) {
+        const isToday = new Date().toDateString() === new Date(year, month, day).toDateString();
+        days.push({ 
+            day: day, 
+            isEmpty: false, 
+            isToday: isToday,
+            isCurrentMonth: true
+        });
+    }
+    
+    // Fill remaining cells to complete the grid (6 rows = 42 cells)
+    const remainingCells = 42 - days.length;
+    for (let i = 0; i < remainingCells; i++) {
+        days.push({ day: '', isEmpty: true });
+    }
+    
+    return days;
+}
+
+/**
+ * Renders the calendar for the current month
+ */
+function renderCalendar() {
+    const calendarDays = document.getElementById('calendarDays');
+    const calendarTitle = document.getElementById('calendarTitle');
+    
+    if (!calendarDays || !calendarTitle) return;
+    
+    const year = currentCalendarDate.getFullYear();
+    const month = currentCalendarDate.getMonth();
+    
+    // Update title
+    const monthNames = [
+        'January', 'February', 'March', 'April', 'May', 'June',
+        'July', 'August', 'September', 'October', 'November', 'December'
+    ];
+    calendarTitle.textContent = `${monthNames[month]} ${year}`;
+    
+    // Generate and render days
+    const days = generateCalendarDays(year, month);
+    calendarDays.innerHTML = '';
+    
+    days.forEach(dayObj => {
+        const dayElement = document.createElement('div');
+        
+        if (dayObj.isEmpty) {
+            dayElement.className = 'text-xs py-1 text-gray-600';
+            dayElement.textContent = '';
+        } else {
+            let className = 'text-xs py-1 cursor-pointer hover:bg-gray-700 rounded transition-colors duration-200';
+            
+            if (dayObj.isToday) {
+                className += ' bg-blue-600 text-white font-medium';
+            } else {
+                className += ' text-gray-300';
+            }
+            
+            dayElement.className = className;
+            dayElement.textContent = dayObj.day;
+        }
+        
+        calendarDays.appendChild(dayElement);
+    });
+}
+
+/**
+ * Navigate to previous month
+ */
+function previousMonth() {
+    currentCalendarDate.setMonth(currentCalendarDate.getMonth() - 1);
+    renderCalendar();
+}
+
+/**
+ * Navigate to next month
+ */
+function nextMonth() {
+    currentCalendarDate.setMonth(currentCalendarDate.getMonth() + 1);
+    renderCalendar();
+}
+
+// Initialize calendar functionality
+document.getElementById('prevMonth')?.addEventListener('click', previousMonth);
+document.getElementById('nextMonth')?.addEventListener('click', nextMonth);
+renderCalendar();
 
 // ============================================================================
 // UTILITY FUNCTIONS

@@ -1181,6 +1181,8 @@ class Calculator {
                         return 'Error';
                     }
                     return Math.sqrt(secondValue);
+                case 'x²':
+                    return Math.pow(secondValue, 2);
                 default:
                     return secondValue;
             }

@@ -19,6 +19,7 @@ A clean, minimalist, dark-mode homepage built with vanilla HTML, CSS, and JavaSc
 - **🔍 Configurable Search**: Search with Google, DuckDuckGo, or Startpage
 - **🎵 YouTube Music**: Quick access to your favorite playlist
 - **🧮 Calculator**: Full-featured calculator with keyboard support
+- **🎮 Worm Game**: Classic snake-like game with D-pad controls and game selector
 - **📝 To-Do List**: Persistent task management with localStorage
 - **📱 Mobile-First**: Responsive design optimized for all devices
 - **🌙 Dark Mode**: Clean, minimalist dark theme
@@ -120,6 +121,15 @@ homepage/
 - Error handling for invalid operations
 - Previous calculation display
 - Mobile-friendly touch interface
+
+### Worm Game Widget
+- Classic snake-like gameplay with smooth 60fps animation
+- Professional D-pad controls for mobile and desktop
+- Keyboard arrow key support for desktop users
+- Score tracking with high score persistence
+- Game selector dropdown for future game expansion
+- Responsive canvas-based rendering
+- Touch-friendly controls optimized for mobile devices
 
 ## 🔧 Technical Details
 

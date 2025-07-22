@@ -623,3 +623,304 @@ The calculator widget is now fully functional and integrated into the minimalist
 Let me know if you have questions during implementation. I'm here to review PRs and unblock you.
 
 — Tech Lead
+
+# 🐍 Design Document: Snake Game Widget for Static Homepage
+
+## 📌 Objective
+
+Add a simple, classic Snake game to the personal homepage that:
+
+* Works seamlessly on both **mobile** and **desktop**
+* Includes **touchscreen directional controls** for phones
+* Uses **keyboard arrows** for desktops/laptops
+* Respects the minimalist dark-mode aesthetic
+* Sets a consistent structure for future games (Tic-Tac-Toe, 2048, etc.)
+
+## 🧱 Architecture and Widget Pattern
+
+Each game should follow a consistent modular widget structure:
+
+```html
+<section class="game-widget" id="snake-game-widget">
+  <h2 class="text-xl font-semibold">🎮 Snake</h2>
+  <div class="snake-container">
+    <!-- canvas or grid for snake -->
+  </div>
+  <div class="controls">
+    <!-- arrow buttons for mobile -->
+  </div>
+  <p id="snake-score">Score: 0</p>
+  <button id="snake-restart">Restart</button>
+</section>
+```
+
+Game logic should be isolated in its own JS module (e.g. `snake.js`) to allow clean integration and future extensions.
+
+---
+
+## 🎮 Game Design
+
+### 📏 Game Area
+
+* Rendered as a grid or HTML `<canvas>` (20x20 cells by default)
+* Snake grows with each food eaten
+* Game over when it hits the wall or itself
+
+### ⌨️ Controls
+
+* **Desktop:** Arrow keys (`keydown` listener)
+* **Mobile:** On-screen arrow buttons
+
+  ```html
+  <div class="mobile-controls">
+    <button data-dir="up">⬆</button>
+    <button data-dir="left">⬅</button>
+    <button data-dir="down">⬇</button>
+    <button data-dir="right">➡</button>
+  </div>
+  ```
+
+### 📈 Score Tracking
+
+* Displayed below the game area
+* High score stored in `localStorage`
+
+### 🔁 Restart
+
+* Reset the snake, score, and food without refreshing the page
+
+---
+
+## 🎨 Styling
+
+* **Dark theme:** use Tailwind (`bg-gray-800`, `border-gray-600`, `text-white`)
+* **Grid:** fixed aspect ratio; max width for mobile
+* **Controls:** large tap targets (44px min)
+
+---
+
+## 📦 Future-Proofing for More Games
+
+All games should:
+
+* Live in their own `<section class="game-widget">`
+* Use dedicated JS modules (e.g. `ticTacToe.js`, `memoryGame.js`)
+* Use consistent class names and container IDs
+* Support a standard init function: `initGame(containerEl)`
+
+Optionally, add a collapsible **"Games" section** to house all game widgets in the future.
+
+---
+
+## ✅ Deliverables
+
+* Self-contained Snake widget with:
+
+  * Grid display
+  * Food generation
+  * Keyboard + touch controls
+  * Score + high score
+  * Restart button
+* Game logic in `snake.js`
+* Hook from main `script.js` to initialize the game
+
+---
+
+# 📋 Tickets — Snake Game Widget
+
+## ✅ Ticket 1: Setup Snake Widget Section - COMPLETED
+
+**Goal:** Create the HTML structure and visual container for the game.
+
+**Tasks:**
+
+* Add `<section id="snake-game-widget">` to `index.html` ✅
+* Include header, score paragraph, mobile controls, and restart button ✅
+* Style with Tailwind to match other widgets ✅
+
+**Acceptance Criteria:**
+
+* Widget appears properly styled and mobile-friendly ✅
+
+**Implementation Notes:**
+- Created Games widget with game selector dropdown
+- Professional D-pad controls instead of simple arrow buttons
+- Responsive design with proper spacing and mobile optimization
+- Clean integration with existing homepage design patterns
+
+---
+
+## ✅ Ticket 2: Render Game Grid or Canvas - COMPLETED
+
+**Goal:** Build a responsive game area where the worm will be drawn.
+
+**Tasks:**
+
+* Use either `<canvas>` or a flexbox/grid container ✅
+* Ensure size is responsive but consistent (e.g. 20x20 cells) ✅
+* Style borders and background ✅
+
+**Acceptance Criteria:**
+
+* Grid is visible with defined cells or canvas boundaries ✅
+
+**Implementation Notes:**
+- Used HTML5 Canvas for optimal performance and precision
+- 300x300 pixel canvas with 20x20 grid system
+- Responsive sizing that maintains aspect ratio
+- Dark theme styling consistent with homepage aesthetic
+
+**Notes:**
+
+* Recommend using `canvas` for performance and precision ✅
+
+---
+
+## ✅ Ticket 3: Snake Movement Logic - COMPLETED
+
+**Goal:** Implement the worm's movement, direction, and growth.
+
+**Tasks:**
+
+* Create `snake.js` module ✅
+* Implement:
+
+  * Snake body array ✅
+  * Direction updates ✅
+  * Grid position updates every X ms ✅
+  * Game over conditions ✅
+
+**Acceptance Criteria:**
+
+* Snake moves smoothly ✅
+* Eats food and grows ✅
+* Game ends on self-collision or wall hit ✅
+
+**Implementation Notes:**
+- Implemented as WormGame class in script.js for better integration
+- Used requestAnimationFrame for smooth 60fps animation
+- Efficient collision detection and food generation algorithms
+- Proper game state management with pause/resume functionality
+
+**Notes:**
+
+* Use `setInterval()` for the game loop ✅ (Actually used requestAnimationFrame for better performance)
+
+---
+
+## ✅ Ticket 4: Add Keyboard and Touch Controls - COMPLETED
+
+**Goal:** Support mobile and desktop control of worm direction.
+
+**Tasks:**
+
+* Add keydown listeners for Arrow keys ✅
+* Add click listeners to arrow buttons ✅
+* Update direction safely (prevent reverse) ✅
+
+**Acceptance Criteria:**
+
+* Snake responds to both input types ✅
+* Fast tap = immediate response ✅
+
+**Implementation Notes:**
+- Professional D-pad design with SVG arrow icons
+- Grid-based layout for authentic controller feel
+- Keyboard arrow key support for desktop users
+- Touch-optimized controls for mobile devices
+- Direction validation prevents 180-degree turns
+
+**Notes:**
+
+* Debounce or lock movement to avoid double moves ✅
+
+---
+
+## ✅ Ticket 5: Score and Restart Button - COMPLETED
+
+**Goal:** Track and display score + allow game reset.
+
+**Tasks:**
+
+* Increment score when food eaten ✅
+* Store highest score in `localStorage` ✅
+* On restart button click:
+
+  * Reset snake, food, score ✅
+
+**Acceptance Criteria:**
+
+* Score updates in real-time ✅
+* High score shown and saved ✅
+* Restart button works without reload ✅
+
+**Implementation Notes:**
+- Real-time score display with high score tracking
+- localStorage persistence for high scores
+- Clean game reset functionality
+- Visual feedback for score updates and game over states
+
+---
+
+## ✅ Ticket 6: Game Module Pattern for Future Games - COMPLETED
+
+**Goal:** Establish a reusable pattern for all future games.
+
+**Tasks:**
+
+* Encapsulate snake logic in `snake.js` with `initSnake(containerEl)` ✅
+* Use IDs and CSS class naming conventions (`game-widget`, `snake-container`, etc.) ✅
+* Prepare main `script.js` to call `initSnake()` cleanly ✅
+
+**Acceptance Criteria:**
+
+* Snake game is fully encapsulated ✅
+* No global variables or logic bleed ✅
+* Ready to copy pattern for next game (e.g. Tic-Tac-Toe) ✅
+
+**Implementation Notes:**
+- WormGame class provides clean encapsulation
+- Game selector dropdown ready for future game expansion
+- Consistent naming conventions and modular architecture
+- Easy to extend with additional games
+
+---
+
+## 🎮 Recent Enhancements (Post-Implementation)
+
+### ✅ D-Pad Controls Enhancement - COMPLETED
+
+**Goal:** Replace simple arrow buttons with professional D-pad design.
+
+**Tasks:**
+- Convert arrow buttons to D-pad layout ✅
+- Add SVG arrow icons for better visual design ✅
+- Implement grid-based D-pad positioning ✅
+- Ensure responsive design for mobile devices ✅
+
+**Acceptance Criteria:**
+- D-pad looks like authentic game controller ✅
+- All directional controls work properly ✅
+- Responsive sizing on different screen sizes ✅
+
+### ✅ Game Selector Dropdown - COMPLETED
+
+**Goal:** Add dropdown menu for selecting different games.
+
+**Tasks:**
+- Create game selector dropdown in widget header ✅
+- Add placeholder for future games (Tic-Tac-Toe) ✅
+- Implement dropdown toggle and selection logic ✅
+- Ensure consistent styling with existing dropdowns ✅
+
+**Acceptance Criteria:**
+- Dropdown shows current game and available options ✅
+- Future games are clearly marked as "coming soon" ✅
+- No copyrighted game names included ✅
+- Clean integration with existing UI patterns ✅
+
+**Implementation Notes:**
+- Removed Tetris option to avoid copyright issues
+- Tic-Tac-Toe marked as coming soon
+- Ready for easy addition of future games
+- Consistent with search engine dropdown patterns

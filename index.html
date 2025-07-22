@@ -246,6 +246,148 @@
             </div>
         </div>
         
+        <!-- Worm Game Widget -->
+        <div class="bg-card-bg rounded-lg p-4 mb-8">
+            <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center">
+                    <svg class="w-6 h-6 text-gray-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                    </svg>
+                    <h2 class="text-xl font-medium text-gray-300">Games</h2>
+                </div>
+                
+                <!-- Game Selector Dropdown -->
+                <div class="relative">
+                    <button 
+                        type="button" 
+                        id="gameSelectorToggle" 
+                        class="flex items-center gap-2 px-3 py-2 text-gray-300 hover:text-gray-100 transition-colors duration-200 border border-gray-600 rounded-lg"
+                    >
+                        <span id="currentGameName">Worm Game</span>
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                    </button>
+                    
+                    <!-- Game Selector Dropdown -->
+                    <div id="gameSelectorDropdown" class="absolute top-full right-0 mt-1 w-48 bg-card-bg border border-gray-700 rounded-lg shadow-lg z-10 hidden">
+                        <div class="py-1">
+                            <div class="px-3 py-2 text-xs text-gray-500 font-medium border-b border-gray-600">Select Game:</div>
+                            <button type="button" class="game-option w-full flex items-center gap-3 px-3 py-2 text-gray-300 hover:bg-gray-700 transition-colors duration-200" data-game="worm">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                                </svg>
+                                <span>Worm Game</span>
+                            </button>
+                            <button type="button" class="game-option w-full flex items-center gap-3 px-3 py-2 text-gray-300 hover:bg-gray-700 transition-colors duration-200 opacity-50 cursor-not-allowed" data-game="tictactoe" disabled>
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                </svg>
+                                <span>Tic-Tac-Toe (Coming Soon)</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Game Canvas -->
+            <div class="flex justify-center mb-4">
+                <canvas 
+                    id="wormCanvas" 
+                    class="border-2 border-gray-600 rounded-lg bg-gray-800"
+                    width="300" 
+                    height="300"
+                ></canvas>
+            </div>
+            
+            <!-- Score Display -->
+            <div class="flex justify-between items-center mb-4">
+                <div class="text-gray-300">
+                    <span id="wormScore">Score: 0</span>
+                </div>
+                <div class="text-gray-400">
+                    <span id="wormHighScore">High Score: 0</span>
+                </div>
+            </div>
+            
+            <!-- D-Pad Controls -->
+            <div class="flex justify-center mb-4">
+                <div class="dpad-container">
+                    <!-- Up -->
+                    <button 
+                        id="wormUp" 
+                        class="dpad-btn dpad-up"
+                        data-direction="up"
+                        aria-label="Move Up"
+                    >
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"/>
+                        </svg>
+                    </button>
+                    
+                    <!-- Center -->
+                    <div class="dpad-center"></div>
+                    
+                    <!-- Left -->
+                    <button 
+                        id="wormLeft" 
+                        class="dpad-btn dpad-left"
+                        data-direction="left"
+                        aria-label="Move Left"
+                    >
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M15.41 16.59L10.83 12l4.58-4.59L14 6l-6 6 6 6z"/>
+                        </svg>
+                    </button>
+                    
+                    <!-- Right -->
+                    <button 
+                        id="wormRight" 
+                        class="dpad-btn dpad-right"
+                        data-direction="right"
+                        aria-label="Move Right"
+                    >
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6z"/>
+                        </svg>
+                    </button>
+                    
+                    <!-- Down -->
+                    <button 
+                        id="wormDown" 
+                        class="dpad-btn dpad-down"
+                        data-direction="down"
+                        aria-label="Move Down"
+                    >
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M16.59 8.59L12 13.17 7.41 8.59 6 10l6 6 6-6z"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Game Controls -->
+            <div class="flex justify-center gap-2">
+                <button 
+                    id="wormStart" 
+                    class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors duration-200"
+                >
+                    Start Game
+                </button>
+                <button 
+                    id="wormRestart" 
+                    class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors duration-200"
+                >
+                    Restart
+                </button>
+            </div>
+            
+            <!-- Game Status -->
+            <div id="wormStatus" class="text-center mt-2 text-gray-400 text-sm">
+                Press Start to begin
+            </div>
+        </div>
+        
         <!-- Sticky Notes Widget -->
         <div class="bg-card-bg rounded-lg p-4 mb-8">
             <div class="flex items-center mb-4">

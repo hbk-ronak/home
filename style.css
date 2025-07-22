@@ -55,7 +55,7 @@ html {
 
 /* Custom scrollbar for webkit browsers */
 ::-webkit-scrollbar {
-    width: 6px;
+    width: 8px;
 }
 
 ::-webkit-scrollbar-track {
@@ -64,7 +64,7 @@ html {
 
 ::-webkit-scrollbar-thumb {
     background: #6b7280;
-    border-radius: 3px;
+    border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
@@ -144,4 +144,156 @@ html {
 
 .calc-decimal:hover {
     background-color: #4b5563;
+}
+
+/* Worm Game Controls */
+.worm-control-btn {
+    width: 48px;
+    height: 48px;
+    background: #4b5563;
+    border: 2px solid #6b7280;
+    border-radius: 8px;
+    color: #e5e7eb;
+    font-size: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+}
+
+.worm-control-btn:hover {
+    background: #6b7280;
+    border-color: #9ca3af;
+    transform: scale(1.05);
+}
+
+.worm-control-btn:active {
+    background: #374151;
+    transform: scale(0.95);
+}
+
+.worm-control-btn:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5);
+}
+
+/* Responsive worm controls for mobile */
+@media (max-width: 640px) {
+    .worm-control-btn {
+        width: 56px;
+        height: 56px;
+        font-size: 24px;
+    }
+}
+
+/* D-Pad Controls */
+.dpad-container {
+    position: relative;
+    width: 120px;
+    height: 120px;
+    display: grid;
+    grid-template-areas: 
+        ". up ."
+        "left center right"
+        ". down .";
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-rows: 1fr 1fr 1fr;
+    gap: 2px;
+}
+
+.dpad-btn {
+    width: 40px;
+    height: 40px;
+    background: #4b5563;
+    border: 2px solid #6b7280;
+    border-radius: 6px;
+    color: #e5e7eb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    outline: none;
+}
+
+.dpad-btn:hover {
+    background: #6b7280;
+    border-color: #9ca3af;
+    transform: scale(1.05);
+}
+
+.dpad-btn:active {
+    background: #374151;
+    transform: scale(0.95);
+}
+
+.dpad-btn:focus {
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5);
+}
+
+.dpad-up {
+    grid-area: up;
+}
+
+.dpad-left {
+    grid-area: left;
+}
+
+.dpad-right {
+    grid-area: right;
+}
+
+.dpad-down {
+    grid-area: down;
+}
+
+.dpad-center {
+    grid-area: center;
+    width: 40px;
+    height: 40px;
+    background: #374151;
+    border: 2px solid #6b7280;
+    border-radius: 6px;
+    opacity: 0.5;
+}
+
+/* Responsive D-pad for mobile */
+@media (max-width: 640px) {
+    .dpad-container {
+        width: 140px;
+        height: 140px;
+    }
+    
+    .dpad-btn {
+        width: 48px;
+        height: 48px;
+    }
+    
+    .dpad-center {
+        width: 48px;
+        height: 48px;
+    }
+}
+
+/* Game Selector Dropdown */
+.game-option {
+    position: relative;
+}
+
+.game-option:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+.game-option:disabled:hover {
+    background: transparent;
 } 

@@ -27,7 +27,8 @@ const widgetFiles = [
     'widgets/notes.js',
     'widgets/calendar.js',
     'widgets/calculator.js',
-    'widgets/worm-game.js',
+    'widgets/game.js',
+    'widgets/games/worm-game.js',
     'widgets/utils.js',
     'widgets/app-init.js'
 ];

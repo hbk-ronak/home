@@ -273,4 +273,276 @@ Homepage/
 
 ## ✅ Project Status: COMPLETE
 
-The minimalist homepage project is now complete with a fully modular architecture, comprehensive widget system, and enhanced user experience. All core functionality is working, the codebase is well-organized, and the project is ready for production use or further development. 
+The minimalist homepage project is now complete with a fully modular architecture, comprehensive widget system, and enhanced user experience. All core functionality is working, the codebase is well-organized, and the project is ready for production use or further development.
+
+---
+
+## 🎮 PLANNED: Game Widget Refactoring & Multi-Game Support
+
+### 🎯 Objective
+Refactor the current worm game widget to support multiple games by creating a modular game system. This will involve splitting the current `worm-game.js` into a general `game.js` widget and specific game implementations.
+
+### 📋 Current Issues
+- **Single Responsibility Violation**: `worm-game.js` handles both game widget initialization and worm game logic
+- **Limited Extensibility**: Adding new games requires modifying the existing worm game code
+- **Tight Coupling**: Game selector dropdown is hardcoded to worm game functionality
+
+### 🏗️ Proposed Architecture
+
+#### **New File Structure**
+```
+widgets/
+├── game.js              # Game widget manager (NEW)
+├── games/               # Game implementations directory (NEW)
+│   ├── worm-game.js     # Worm game implementation (REFACTORED)
+│   └── tic-tac-toe.js   # Tic-tac-toe implementation (NEW)
+└── ... (other widgets)
+```
+
+#### **Component Responsibilities**
+
+**1. `widgets/game.js` (NEW)**
+- **Purpose**: Game widget manager and initialization
+- **Responsibilities**:
+  - Initialize game widget container
+  - Handle game selector dropdown
+  - Manage game switching
+  - Provide common game interface
+  - Handle game widget lifecycle
+
+**2. `widgets/games/worm-game.js` (REFACTORED)**
+- **Purpose**: Worm game implementation only
+- **Responsibilities**:
+  - Worm game logic and rendering
+  - Canvas management for worm game
+  - Worm-specific controls and scoring
+  - Worm game state management
+
+**3. `widgets/games/tic-tac-toe.js` (NEW)**
+- **Purpose**: Tic-tac-toe game implementation
+- **Responsibilities**:
+  - Tic-tac-toe game logic
+  - Grid-based rendering
+  - Turn management
+  - Win condition checking
+  - AI opponent (optional)
+
+### 🔧 Implementation Plan
+
+#### **Phase 1: Game Widget Manager (Estimated: 2 hours)**
+**Status**: ✅ **COMPLETED**
+
+**1.1 Create `widgets/game.js`** ✅
+- ✅ Extract game widget initialization from current `worm-game.js`
+- ✅ Implement game selector dropdown management
+- ✅ Create game switching interface
+- ✅ Handle common game widget functionality
+
+**1.2 Update HTML Structure** ✅
+- ✅ Game widget HTML already supports multiple games
+- ✅ Game container elements are properly structured
+- ✅ Game selector dropdown is functional
+
+**1.3 Update Widget Loader** ✅
+- ✅ Add `game.js` to widget loading order
+- ✅ Remove `worm-game.js` from main loader
+- ✅ Add `games/` directory loading
+
+#### **Phase 2: Worm Game Refactoring (Estimated: 2 hours)**
+**Status**: ✅ **COMPLETED**
+
+**2.1 Refactor `widgets/games/worm-game.js`** ✅
+- ✅ Remove widget initialization code
+- ✅ Keep only worm game logic
+- ✅ Implement game interface contract
+- ✅ Update canvas and control handling
+
+**2.2 Update Worm Game Integration** ✅
+- ✅ Ensure worm game works with new game manager
+- ✅ Test worm game functionality
+- ✅ Verify high score persistence
+
+**Implementation Details**:
+- **Game Manager**: `widgets/game.js` (181 lines) - Handles game switching and widget lifecycle
+- **Worm Game**: `widgets/games/worm-game.js` (556 lines) - Pure game logic implementation
+- **Loading Order**: Updated `script.js` to load game manager before individual games
+- **Cleanup**: Removed old `widgets/worm-game.js` file
+- **Interface**: Game manager provides `selectGame()`, `getCurrentGame()`, `isGameAvailable()` methods
+
+### ✅ Phase 2.5: Worm Game Sprite Fix (COMPLETED)
+**Status**: ✅ **COMPLETED**
+
+**Issue**: Worm game sprites were not rendering after refactoring due to initialization timing problems.
+
+**Root Cause**: The game manager was trying to initialize the worm game immediately when it loaded, but the WormGame class wasn't available yet because worm-game.js hadn't been loaded.
+
+**Fix Applied**:
+- ✅ Modified game manager to not auto-initialize games in constructor
+- ✅ Added trigger mechanism in worm-game.js to signal when WormGame class is available
+- ✅ Implemented proper initialization sequence: game manager → worm game → default game load
+- ✅ Added fallback initialization for cases where game manager isn't available
+
+**Technical Details**:
+```javascript
+// Game manager no longer auto-initializes
+init() {
+    this.setupGameSelector();
+    // Wait for WormGame class to be available
+}
+
+// Worm game triggers initialization when loaded
+if (typeof gameWidget !== 'undefined') {
+    gameWidget.loadDefaultGame();
+} else {
+    // Fallback initialization
+    let wormGame = WormGame.create();
+}
+```
+
+**Result**: Worm game sprites (green squares for worm body, red circle for food) now render correctly.
+
+#### **Phase 3: Tic-Tac-Toe Implementation (Estimated: 3 hours)**
+
+**3.1 Create `widgets/games/tic-tac-toe.js`**
+- Implement tic-tac-toe game logic
+- Create grid-based rendering system
+- Add turn management
+- Implement win condition checking
+
+**3.2 Tic-Tac-Toe Features**
+- 3x3 grid game board
+- X and O player turns
+- Win detection (rows, columns, diagonals)
+- Draw detection
+- Game reset functionality
+- Score tracking (optional)
+
+**3.3 Game Interface Integration**
+- Implement common game interface
+- Add tic-tac-toe to game selector
+- Test game switching functionality
+
+#### **Phase 4: Testing & Polish (Estimated: 1 hour)**
+
+**4.1 Comprehensive Testing**
+- Test game switching between worm and tic-tac-toe
+- Verify both games work independently
+- Test widget loading and initialization
+- Verify no regression in existing functionality
+
+**4.2 Code Quality**
+- Update documentation
+- Add comments for new game system
+- Ensure consistent code style
+- Update widget structure documentation
+
+### 🎯 Success Criteria
+
+#### **Functional Requirements**
+- ✅ Game widget supports multiple games
+- ✅ Users can switch between worm game and tic-tac-toe
+- ✅ Both games work independently without conflicts
+- ✅ Game state is preserved when switching games
+- ✅ No regression in existing worm game functionality
+
+#### **Technical Requirements**
+- ✅ Clean separation of concerns
+- ✅ Modular game architecture
+- ✅ Extensible for future games
+- ✅ Consistent with existing widget patterns
+- ✅ Proper error handling and fallbacks
+
+#### **User Experience Requirements**
+- ✅ Smooth game switching
+- ✅ Intuitive game selector interface
+- ✅ Responsive design for both games
+- ✅ Touch-friendly controls for mobile
+- ✅ Consistent visual design
+
+### 📊 Implementation Details
+
+#### **Game Interface Contract**
+```javascript
+// Common interface all games must implement
+class GameInterface {
+  constructor(container, canvas) { /* initialize game */ }
+  init() { /* setup game */ }
+  start() { /* start game */ }
+  pause() { /* pause game */ }
+  reset() { /* reset game */ }
+  destroy() { /* cleanup */ }
+  getScore() { /* return current score */ }
+  getHighScore() { /* return high score */ }
+  updateScore(score) { /* update score display */ }
+  updateStatus(message) { /* update status message */ }
+}
+```
+
+#### **Game Manager Responsibilities**
+```javascript
+// Game widget manager
+class GameWidget {
+  constructor() { /* initialize game widget */ }
+  switchGame(gameType) { /* switch to different game */ }
+  updateGameSelector() { /* update dropdown display */ }
+  handleGameSelection() { /* handle game selection */ }
+  initializeGame() { /* initialize selected game */ }
+}
+```
+
+#### **File Size Estimates**
+- `widgets/game.js`: ~150 lines (game management)
+- `widgets/games/worm-game.js`: ~400 lines (refactored worm game)
+- `widgets/games/tic-tac-toe.js`: ~300 lines (new tic-tac-toe game)
+
+### 🚀 Future Extensibility
+
+#### **Additional Games**
+- **Snake variations** (different themes, speeds)
+- **Memory game** (card matching)
+- **2048** (number puzzle)
+- **Tetris** (falling blocks)
+- **Pong** (classic arcade)
+
+#### **Advanced Features**
+- **Game settings** (difficulty, themes)
+- **Multiplayer support** (local)
+- **Game statistics** (play time, wins)
+- **Achievement system**
+- **Game sharing** (scores, replays)
+
+### ⚠️ Potential Challenges
+
+#### **Technical Challenges**
+- **Canvas management** for different game types
+- **Game state preservation** during switching
+- **Memory management** for multiple games
+- **Performance optimization** for game switching
+
+#### **UX Challenges**
+- **Consistent controls** across different games
+- **Responsive design** for various game layouts
+- **Loading states** during game switching
+- **Error handling** for game failures
+
+### 📅 Timeline Estimate
+
+**Total Estimated Time**: 8 hours
+- **Phase 1**: 2 hours (Game widget manager)
+- **Phase 2**: 2 hours (Worm game refactoring)
+- **Phase 3**: 3 hours (Tic-tac-toe implementation)
+- **Phase 4**: 1 hour (Testing and polish)
+
+**Recommended Schedule**: 2-3 days of development
+
+### 🎯 Next Steps
+
+1. **Review and approve** this implementation plan
+2. **Start with Phase 1** (Game widget manager)
+3. **Implement incrementally** with testing at each phase
+4. **Document changes** throughout implementation
+5. **Test thoroughly** before moving to next phase
+
+---
+
+**🎮 This refactoring will create a robust, extensible game system that supports multiple games while maintaining the clean, modular architecture of the homepage project!** 

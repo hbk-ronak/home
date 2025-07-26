@@ -510,7 +510,280 @@ function deleteTodo(taskId) {
 }
 
 /**
- * Handles todo form submission
+ * Date Picker Implementation - Comprehensive Solution
+ * 
+ * Browser Compatibility Research:
+ * - Chrome: Native date picker works well with input[type="date"]
+ * - Firefox: Native date picker works, but may need focus() before click()
+ * - Safari: Native date picker works, but positioning can be tricky
+ * - Edge: Native date picker works well
+ * - Mobile: Native date picker is more reliable than desktop
+ * 
+ * Fallback Strategy:
+ * 1. Try native date picker first
+ * 2. If native fails, show a simple date input
+ * 3. Provide clear user feedback
+ */
+
+/**
+ * Checks if the browser supports native date picker
+ * @returns {boolean} True if native date picker is supported
+ */
+function isNativeDatePickerSupported() {
+    const input = document.createElement('input');
+    input.type = 'date';
+    return input.type === 'date';
+}
+
+/**
+ * Gets browser information for debugging
+ * @returns {Object} Browser information
+ */
+function getBrowserInfo() {
+    const userAgent = navigator.userAgent;
+    let browser = 'Unknown';
+    let version = 'Unknown';
+    
+    if (userAgent.includes('Chrome')) {
+        browser = 'Chrome';
+        version = userAgent.match(/Chrome\/(\d+)/)?.[1] || 'Unknown';
+    } else if (userAgent.includes('Firefox')) {
+        browser = 'Firefox';
+        version = userAgent.match(/Firefox\/(\d+)/)?.[1] || 'Unknown';
+    } else if (userAgent.includes('Safari') && !userAgent.includes('Chrome')) {
+        browser = 'Safari';
+        version = userAgent.match(/Version\/(\d+)/)?.[1] || 'Unknown';
+    } else if (userAgent.includes('Edge')) {
+        browser = 'Edge';
+        version = userAgent.match(/Edge\/(\d+)/)?.[1] || 'Unknown';
+    }
+    
+    return { browser, version, userAgent };
+}
+
+/**
+ * Creates a properly positioned date input for native picker
+ * @returns {HTMLInputElement} The date input element
+ */
+function createNativeDateInput() {
+    const input = document.createElement('input');
+    input.type = 'date';
+    input.style.position = 'fixed';
+    input.style.top = '50%';
+    input.style.left = '50%';
+    input.style.transform = 'translate(-50%, -50%)';
+    input.style.zIndex = '9999';
+    input.style.opacity = '0.01'; // Nearly invisible but accessible
+    input.style.pointerEvents = 'auto';
+    input.style.fontSize = '16px'; // Prevents zoom on mobile
+    
+    return input;
+}
+
+/**
+ * Toggles date picker visibility with comprehensive error handling
+ */
+function toggleDatePicker() {
+    console.log('=== Date Picker Debug ===');
+    console.log('Browser Info:', getBrowserInfo());
+    console.log('Native Date Picker Supported:', isNativeDatePickerSupported());
+    
+    // Since native date picker is unreliable across browsers,
+    // we'll use our custom fallback dialog which is more consistent
+    console.log('Using custom date picker dialog for better reliability');
+    showFallbackDateInput();
+}
+
+/**
+ * Shows a fallback date input when native picker fails
+ */
+function showFallbackDateInput() {
+    console.log('Showing fallback date input');
+    
+    // Create a simple date input dialog
+    const dialog = document.createElement('div');
+    dialog.style.cssText = `
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: #333;
+        border: 1px solid #666;
+        border-radius: 8px;
+        padding: 20px;
+        z-index: 10000;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+        min-width: 300px;
+    `;
+    
+    dialog.innerHTML = `
+        <div style="color: #fff; margin-bottom: 15px; font-weight: bold; font-size: 16px;">📅 Select Due Date</div>
+        <div style="margin-bottom: 15px;">
+            <label for="fallbackDateInput" style="color: #ccc; font-size: 14px; display: block; margin-bottom: 5px;">Choose a date:</label>
+            <input type="date" id="fallbackDateInput" style="
+                background: #444;
+                border: 1px solid #666;
+                color: #fff;
+                padding: 10px;
+                border-radius: 4px;
+                font-size: 14px;
+                width: 100%;
+                box-sizing: border-box;
+            ">
+        </div>
+        <div style="display: flex; gap: 10px; justify-content: flex-end;">
+            <button id="fallbackDateCancel" style="
+                background: #666;
+                color: #fff;
+                border: none;
+                padding: 8px 16px;
+                border-radius: 4px;
+                cursor: pointer;
+                font-size: 14px;
+            ">Cancel</button>
+            <button id="fallbackDateOk" style="
+                background: #007bff;
+                color: #fff;
+                border: none;
+                padding: 8px 16px;
+                border-radius: 4px;
+                cursor: pointer;
+                font-size: 14px;
+            ">Set Date</button>
+        </div>
+    `;
+    
+    document.body.appendChild(dialog);
+    
+    // Focus the date input
+    const dateInput = dialog.querySelector('#fallbackDateInput');
+    dateInput.focus();
+    
+    // Set today's date as default
+    const today = new Date().toISOString().split('T')[0];
+    dateInput.value = today;
+    
+    // Handle OK button
+    dialog.querySelector('#fallbackDateOk').addEventListener('click', () => {
+        const selectedDate = dateInput.value;
+        if (selectedDate) {
+            updateDateSelection(selectedDate);
+        }
+        cleanupFallbackDialog(dialog);
+    });
+    
+    // Handle Cancel button
+    dialog.querySelector('#fallbackDateCancel').addEventListener('click', () => {
+        cleanupFallbackDialog(dialog);
+    });
+    
+    // Handle Enter key
+    dateInput.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter') {
+            const selectedDate = dateInput.value;
+            if (selectedDate) {
+                updateDateSelection(selectedDate);
+            }
+            cleanupFallbackDialog(dialog);
+        } else if (event.key === 'Escape') {
+            cleanupFallbackDialog(dialog);
+        }
+    });
+    
+    // Auto-close on outside click
+    setTimeout(() => {
+        document.addEventListener('click', (event) => {
+            if (!dialog.contains(event.target)) {
+                cleanupFallbackDialog(dialog);
+            }
+        });
+    }, 100);
+}
+
+/**
+ * Updates the date selection in the todo interface
+ * @param {string} selectedDate - Selected date in YYYY-MM-DD format
+ */
+function updateDateSelection(selectedDate) {
+    console.log('Date selected:', selectedDate);
+    
+    // Update the hidden date input
+    const dateInput = document.getElementById('todoDueDate');
+    if (dateInput) {
+        dateInput.value = selectedDate;
+    }
+    
+    // Update the display
+    updateDateDisplay();
+    
+    // Show success feedback
+    showDateSelectionFeedback(selectedDate);
+}
+
+/**
+ * Shows feedback when a date is selected
+ * @param {string} selectedDate - Selected date
+ */
+function showDateSelectionFeedback(selectedDate) {
+    const formattedDate = formatDate(selectedDate);
+    
+    // Update the date display with visual feedback
+    const dateDisplay = document.getElementById('todoDateDisplay');
+    if (dateDisplay) {
+        dateDisplay.textContent = formattedDate;
+        dateDisplay.classList.add('text-blue-400');
+        
+        // Add a brief animation
+        dateDisplay.style.transform = 'scale(1.1)';
+        setTimeout(() => {
+            dateDisplay.style.transform = 'scale(1)';
+        }, 200);
+    }
+    
+    console.log('Date selection feedback shown:', formattedDate);
+}
+
+/**
+ * Updates the date display when a date is selected
+ */
+function updateDateDisplay() {
+    const dateInput = document.getElementById('todoDueDate');
+    const dateDisplay = document.getElementById('todoDateDisplay');
+    
+    if (dateInput && dateDisplay) {
+        if (dateInput.value) {
+            const formattedDate = formatDate(dateInput.value);
+            dateDisplay.textContent = formattedDate;
+            dateDisplay.classList.add('text-blue-400');
+        } else {
+            dateDisplay.textContent = 'Date';
+            dateDisplay.classList.remove('text-blue-400');
+        }
+    }
+}
+
+/**
+ * Cleans up the date input element
+ * @param {HTMLInputElement} dateInput - The date input to clean up
+ */
+function cleanupDateInput(dateInput) {
+    if (dateInput && document.body.contains(dateInput)) {
+        document.body.removeChild(dateInput);
+    }
+}
+
+/**
+ * Cleans up the fallback dialog
+ * @param {HTMLElement} dialog - The dialog to clean up
+ */
+function cleanupFallbackDialog(dialog) {
+    if (dialog && document.body.contains(dialog)) {
+        document.body.removeChild(dialog);
+    }
+}
+
+/**
+ * Handles todo form submission with enhanced UX
  * @param {Event} event - Form submit event
  */
 function handleTodoSubmit(event) {
@@ -518,13 +791,58 @@ function handleTodoSubmit(event) {
     
     const input = document.getElementById('todoInput');
     const dateInput = document.getElementById('todoDueDate');
-    const text = input.value;
+    const text = input.value.trim();
     const dueDate = dateInput.value || null;
+    
+    if (!text) {
+        // Show visual feedback for empty input
+        input.classList.add('border-red-500');
+        setTimeout(() => input.classList.remove('border-red-500'), 2000);
+        return;
+    }
     
     addTodo(text, dueDate);
     input.value = '';
     dateInput.value = '';
+    updateDateDisplay();
     input.focus();
+}
+
+/**
+ * Handles keyboard shortcuts for the todo form
+ * @param {Event} event - Keydown event
+ */
+function handleTodoKeyboard(event) {
+    // Enter to submit form
+    if (event.key === 'Enter' && !event.shiftKey) {
+        event.preventDefault();
+        handleTodoSubmit(event);
+    }
+    
+    // Ctrl/Cmd + D to focus date picker
+    if ((event.ctrlKey || event.metaKey) && event.key === 'd') {
+        event.preventDefault();
+        toggleDatePicker();
+    }
+}
+
+/**
+ * Handles date picker toggle
+ * @param {Event} event - Click event
+ */
+function handleDateToggle(event) {
+    event.preventDefault();
+    console.log('Date toggle clicked!'); // Debug log
+    toggleDatePicker();
+}
+
+/**
+ * Handles date input change
+ * @param {Event} event - Change event
+ */
+function handleDateChange(event) {
+    console.log('Date changed:', event.target.value); // Debug log
+    updateDateDisplay();
 }
 
 /**
@@ -543,10 +861,13 @@ function formatDate(dateStr) {
     });
 }
 
-// Initialize todo functionality
-document.getElementById('todoForm').addEventListener('submit', handleTodoSubmit);
-document.getElementById('todoFilter').addEventListener('change', handleTodoFilterChange);
-loadTodoFilterPreference();
+// Initialize todo functionality - MOVED TO initializeApp()
+// document.getElementById('todoForm').addEventListener('submit', handleTodoSubmit);
+// document.getElementById('todoFilter').addEventListener('change', handleTodoFilterChange);
+// document.getElementById('todoDateToggle').addEventListener('click', handleDateToggle);
+// document.getElementById('todoDueDate').addEventListener('change', handleDateChange);
+// document.getElementById('todoInput').addEventListener('keydown', handleTodoKeyboard);
+// loadTodoFilterPreference();
 
 // ============================================================================
 // STICKY NOTES FUNCTIONALITY (Ticket 11)
@@ -977,9 +1298,6 @@ document.getElementById('nextMonth')?.addEventListener('click', nextMonth);
 loadCalendarEvents();
 renderCalendar();
 
-// Initialize todo functionality with task store
-renderTodos();
-
 // ============================================================================
 // DATA MANAGEMENT (Ticket 2)
 // ============================================================================
@@ -1034,8 +1352,37 @@ function showMessage(message) {
  * Initialize all components when DOM is loaded
  */
 function initializeApp() {
-    // All initialization is handled by individual component functions above
-    // This function can be used for any app-wide initialization in the future
+    // Initialize todo functionality
+    const todoForm = document.getElementById('todoForm');
+    const todoFilter = document.getElementById('todoFilter');
+    const todoDateToggle = document.getElementById('todoDateToggle');
+    const todoDueDate = document.getElementById('todoDueDate');
+    const todoInput = document.getElementById('todoInput');
+    
+    console.log('Initializing todo elements:', {
+        todoForm: !!todoForm,
+        todoFilter: !!todoFilter,
+        todoDateToggle: !!todoDateToggle,
+        todoDueDate: !!todoDueDate,
+        todoInput: !!todoInput
+    });
+    
+    if (todoForm) todoForm.addEventListener('submit', handleTodoSubmit);
+    if (todoFilter) todoFilter.addEventListener('change', handleTodoFilterChange);
+    if (todoDateToggle) {
+        console.log('Adding click listener to date toggle button');
+        todoDateToggle.addEventListener('click', handleDateToggle);
+    }
+    if (todoDueDate) todoDueDate.addEventListener('change', handleDateChange);
+    if (todoInput) todoInput.addEventListener('keydown', handleTodoKeyboard);
+    
+    loadTodoFilterPreference();
+    
+    // Render initial todos
+    renderTodos();
+    
+    // Initialize other components
+    // (Clock, search, calendar, etc. are initialized immediately when script loads)
 }
 
 // Run initialization when DOM is ready

@@ -924,3 +924,152 @@ Optionally, add a collapsible **"Games" section** to house all game widgets in t
 - Tic-Tac-Toe marked as coming soon
 - Ready for easy addition of future games
 - Consistent with search engine dropdown patterns
+
+
+# 📋 Project Tickets — Unified Calendar and To-Do Integration
+
+This ticket file outlines the implementation plan for unifying the Calendar and To-Do widgets in the static homepage, while keeping them visually and functionally distinct. The shared data layer ensures both widgets stay synchronized. The design is mobile-first, privacy-respecting, and served entirely via GitHub Pages using `localStorage`.
+
+---
+
+## ✅ Ticket 1: Shared Task Data Store (`taskStore.js`)
+
+**Goal:** Centralize task data management across widgets using a single `tasks[]` array stored in `localStorage`.
+
+**Tasks:**
+
+* Create `taskStore.js` module that exports:
+
+  * `getTasks()` — returns current task list
+  * `saveTasks()` — saves `window.tasks[]` to `localStorage`
+  * `addTask(task)` — adds a new task
+  * `updateTask(id, fields)` — updates a task
+  * `deleteTask(id)` — removes a task
+  * `getTasksByDate(dateStr)` — filters tasks by `dueDate`
+* Initialize `window.tasks` once on page load
+
+**Acceptance Criteria:**
+
+* All widgets call functions from `taskStore.js`
+* No redundant or duplicate task arrays elsewhere
+* Tasks persist between page loads via `localStorage['homepage.tasks']`
+
+---
+
+## ✅ Ticket 2: Refactor To-Do Widget to Use Shared Task Store
+
+**Goal:** Update the To-Do widget to read from and write to the shared task data.
+
+**Tasks:**
+
+* Refactor to render todos using `getTasks()`
+* Add new task using `addTask()`
+* Complete toggle → use `updateTask(id, { completed })`
+* Delete and edit tasks → use `updateTask` or `deleteTask`
+* Show due date next to tasks if present
+* Add `<input type="date">` field to the add task form
+
+**Acceptance Criteria:**
+
+* Tasks added show up correctly with optional due dates
+* Task changes are reflected in `localStorage`
+* Tasks maintain consistent ID and structure
+
+---
+
+## ✅ Ticket 3: Update Calendar Widget to Show Task Indicators
+
+**Goal:** Show visual cues (e.g., dots or emoji) on calendar dates that have associated tasks.
+
+**Tasks:**
+
+* For each day in the visible calendar month:
+
+  * Use `getTasksByDate('YYYY-MM-DD')`
+  * If results are non-empty, show a marker (🟢 or •)
+* Style markers with Tailwind (or emoji fallback)
+
+**Acceptance Criteria:**
+
+* Calendar dates with tasks show a visual indicator
+* Empty dates have no marker
+
+---
+
+## ✅ Ticket 4: Add Per-Day Task View to Calendar
+
+**Goal:** Allow user to click on a date and see all tasks for that date.
+
+**Tasks:**
+
+* Add a tap/click handler on each date cell
+* On click, show a popup, inline drawer, or modal listing tasks for that date
+* Tasks shown should reflect real-time task state from `taskStore`
+* Option to add a task for that date (prefill `dueDate`)
+
+**Acceptance Criteria:**
+
+* Clicking a date shows accurate tasks
+* Adding task from calendar sets the correct due date
+* Completed/deleted tasks update both widgets in real time
+
+---
+
+## ✅ Ticket 5: Date-Aware Task Entry in To-Do Form
+
+**Goal:** Allow users to optionally assign a due date when creating a new task.
+
+**Tasks:**
+
+* Update task entry form to include `<input type="date">`
+* If date is selected, save it in the task's `dueDate`
+* Leave `dueDate = null` for undated tasks
+
+**Acceptance Criteria:**
+
+* Task with date shows in calendar
+* Task without date does not affect calendar
+
+---
+
+## ✅ Ticket 6: Optional Filtering in To-Do List
+
+**Goal:** Add simple filters to view tasks by category.
+
+**Tasks:**
+
+* Add UI buttons or dropdown for:
+
+  * All Tasks
+  * Dated Tasks
+  * Undated Tasks
+  * Tasks for Today
+* Use `getTasks()` + filter logic to update rendered list
+
+**Acceptance Criteria:**
+
+* Filtering does not affect data
+* Switching filters updates the visible list only
+
+---
+
+## ✅ Ticket 7: Sync Rendering After Task Update
+
+**Goal:** Ensure that any change made to a task (complete/edit/delete) is reflected in **both widgets** in real-time.
+
+**Tasks:**
+
+* Centralize `renderTasks()` and `renderCalendar()` methods
+* Whenever a task is updated, both render methods are triggered
+* Use `MutationObserver`, event dispatch, or simple re-calls
+
+**Acceptance Criteria:**
+
+* Completing a task updates the calendar if applicable
+* Adding/deleting a task updates both widgets immediately
+
+---
+
+This ticket group allows To-Dos and Calendar to remain modular while staying perfectly synchronized through a shared task store.
+
+— Tech Lead

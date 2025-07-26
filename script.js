@@ -27,6 +27,7 @@ const widgetFiles = [
     'widgets/todo.js',
     'widgets/notes.js',
     'widgets/calendar.js',
+    'widgets/quotes.js',
     'widgets/calculator.js',
     'widgets/camera.js', // Camera widget
     'widgets/game.js',

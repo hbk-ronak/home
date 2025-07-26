@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Network Security Test</title>
+    
+    <!-- Network Security - Load First -->
+    <script src="widgets/network-security.js"></script>
+</head>
+<body>
+    <h1>Network Security Test</h1>
+    <p>This page tests that all outgoing network calls are blocked.</p>
+    
+    <div id="test-results"></div>
+    
+    <script>
+        // Test network blocking
+        const results = document.getElementById('test-results');
+        
+        function addResult(test, passed, message) {
+            const div = document.createElement('div');
+            div.style.padding = '10px';
+            div.style.margin = '5px';
+            div.style.border = '1px solid ' + (passed ? 'green' : 'red');
+            div.style.backgroundColor = passed ? '#e8f5e8' : '#ffe8e8';
+            div.innerHTML = `<strong>${test}:</strong> ${passed ? 'PASSED' : 'BLOCKED'} - ${message}`;
+            results.appendChild(div);
+        }
+        
+        // Test 1: Fetch
+        try {
+            fetch('https://example.com');
+            addResult('Fetch Request', false, 'Should have been blocked');
+        } catch (error) {
+            addResult('Fetch Request', true, 'Successfully blocked: ' + error.message);
+        }
+        
+        // Test 2: XMLHttpRequest
+        try {
+            const xhr = new XMLHttpRequest();
+            xhr.open('GET', 'https://example.com');
+            addResult('XMLHttpRequest', false, 'Should have been blocked');
+        } catch (error) {
+            addResult('XMLHttpRequest', true, 'Successfully blocked: ' + error.message);
+        }
+        
+        // Test 3: WebSocket
+        try {
+            new WebSocket('wss://example.com');
+            addResult('WebSocket', false, 'Should have been blocked');
+        } catch (error) {
+            addResult('WebSocket', true, 'Successfully blocked: ' + error.message);
+        }
+        
+        // Test 4: Beacon
+        try {
+            if (navigator.sendBeacon) {
+                const result = navigator.sendBeacon('https://example.com', 'test');
+                if (result === false) {
+                    addResult('Beacon', true, 'Successfully blocked');
+                } else {
+                    addResult('Beacon', false, 'Should have been blocked');
+                }
+            } else {
+                addResult('Beacon', true, 'Not supported in this browser');
+            }
+        } catch (error) {
+            addResult('Beacon', true, 'Successfully blocked: ' + error.message);
+        }
+        
+        // Test 5: External Image
+        try {
+            new Image('https://example.com/image.jpg');
+            addResult('External Image', false, 'Should have been blocked');
+        } catch (error) {
+            addResult('External Image', true, 'Successfully blocked: ' + error.message);
+        }
+        
+        // Test 6: Local Blob (should work)
+        try {
+            const blob = new Blob(['test'], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            new Image(url);
+            addResult('Local Blob Image', true, 'Successfully allowed');
+        } catch (error) {
+            addResult('Local Blob Image', false, 'Should have been allowed: ' + error.message);
+        }
+        
+        // Test 7: External Script
+        try {
+            const script = document.createElement('script');
+            script.setAttribute('src', 'https://example.com/script.js');
+            addResult('External Script', false, 'Should have been blocked');
+        } catch (error) {
+            addResult('External Script', true, 'Successfully blocked: ' + error.message);
+        }
+        
+        console.log('🛡️ Network security test completed');
+    </script>
+</body>
+</html> 

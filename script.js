@@ -18,6 +18,7 @@
 
 // Load widget files in dependency order
 const widgetFiles = [
+    'widgets/network-security.js', // FIRST: Network security monitor
     'taskStore.js',
     'widgets/clock.js',
     'widgets/salutation.js', 
@@ -27,6 +28,7 @@ const widgetFiles = [
     'widgets/notes.js',
     'widgets/calendar.js',
     'widgets/calculator.js',
+    'widgets/camera.js', // Camera widget
     'widgets/game.js',
     'widgets/games/worm-game.js',
     'widgets/games/tic-tac-toe.js',

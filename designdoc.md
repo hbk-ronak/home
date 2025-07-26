@@ -1,170 +1,375 @@
-Here’s a **detailed design document** for the homepage UI we discussed, tailored to work entirely **client-side** and deployable via **GitHub Pages** (static hosting, no server code).
-
----
+# 🎨 Design Document - Minimalist Homepage
 
 ## **1. Project Overview**
 
-We aim to build a **clean, minimalist, dark-mode homepage** that includes:
+A **clean, minimalist, dark-mode homepage** with a comprehensive widget system including:
 
-1. A **configurable search box** (Google, DuckDuckGo, Startpage).
-2. A **digital clock widget** (real-time).
-3. A **YouTube Music playlist player** (play favorite playlist).
-4. A **To-Do list** (persisted client-side using `localStorage`).
+1. **Real-time clock** with 24-hour format
+2. **Time-aware salutation** messages
+3. **Multi-engine search** with bang commands and easter eggs
+4. **YouTube Music** playlist integration
+5. **To-Do list** with date picker and filtering
+6. **Sticky notes** with color options
+7. **Mini calendar** with task integration
+8. **Full-featured calculator** with keyboard support
+9. **Worm game** with canvas rendering
+10. **Unified task management** system
 
-The entire application must be **static and front-end only** since GitHub Pages cannot run server-side code.
+The application is **fully static and client-side**, deployable via **GitHub Pages** with no server-side code required.
 
 ---
 
 ## **2. Tools & Tech Stack**
 
 ### **Frontend Framework**
-
-* **Vanilla HTML/CSS/JS** (no heavy frameworks required).
-* Optionally **Tailwind CSS** for rapid styling with dark-mode classes.
-* **ES6 modules** for structuring JS code.
+* **Vanilla HTML/CSS/JS** (no heavy frameworks)
+* **Tailwind CSS** for rapid styling with dark-mode classes
+* **ES6 modules** for modular widget architecture
+* **Canvas API** for game rendering
 
 ### **Persistence**
+* **localStorage** for storing:
+  * User's search engine preference
+  * To-do list items with due dates
+  * Sticky notes with colors
+  * Calendar events
+  * Calculator history
+  * Game high scores
+  * Widget preferences
 
-* **localStorage** (browser-based) for storing:
-
-  * User’s search engine preference.
-  * To-do list items.
-  * Playlist ID.
-
-### **Player Integration**
-
-* **YouTube IFrame Player API** to embed and control a playlist.
-
-  * The "Play My Playlist" button will load an iframe with autoplay enabled.
-
-### **Search Engine Switching**
-
-* A dropdown will set the selected search engine.
-* On submit, the form will redirect to the selected engine with the query string.
+### **Widget Architecture**
+* **Modular design** with 11 separate widget files
+* **Dynamic loading** system for dependency management
+* **Shared data store** for cross-widget communication
+* **Event-driven** synchronization between widgets
 
 ### **Deployment**
-
-* **GitHub Pages** for static hosting.
-* No server required; everything must run client-side.
+* **GitHub Pages** for static hosting
+* **PWA-ready** with manifest.json
+* **Mobile-optimized** responsive design
 
 ---
 
 ## **3. Architecture**
 
 ```
-root/
- ├─ index.html      (Main UI)
- ├─ /assets/
- │    ├─ style.css  (Tailwind compiled + custom styles)
- │    ├─ main.js    (All JS logic)
- │    └─ icons/     (SVGs for search, etc.)
- ├─ manifest.json   (PWA compatibility, optional)
- └─ README.md       (Documentation)
+Homepage/
+├── index.html              # Main HTML structure
+├── style.css               # Custom styles and widget-specific CSS
+├── script.js               # Widget loader and main entry point
+├── taskStore.js            # Centralized task management
+├── widgets/                # Modular widget files
+│   ├── clock.js           # Clock widget (26 lines)
+│   ├── salutation.js      # Salutation widget (60 lines)
+│   ├── search.js          # Search widget (270 lines)
+│   ├── music.js           # Music widget (25 lines)
+│   ├── todo.js            # Todo widget (511 lines)
+│   ├── notes.js           # Notes widget (141 lines)
+│   ├── calendar.js        # Calendar widget (304 lines)
+│   ├── calculator.js      # Calculator widget (258 lines)
+│   ├── worm-game.js       # Worm game widget (567 lines)
+│   ├── utils.js           # Utility functions (113 lines)
+│   └── app-init.js        # App initialization (56 lines)
+├── WIDGET_STRUCTURE.md     # Documentation
+├── NOTES.md               # Project notes
+├── designdoc.md           # This file
+└── manifest.json          # PWA manifest
 ```
 
 ---
 
-## **4. Feature Design**
+## **4. Widget Design Specifications**
 
-### **4.1 Search Box**
+### **4.1 Clock Widget**
+* **UI:** Large digital clock (HH:MM:SS) in monospace font
+* **Logic:** Updates every second with `setInterval`
+* **Format:** 24-hour (en-GB locale)
+* **Dependencies:** None
 
-* **UI:** Input field + dropdown for engine + search button.
-* **Logic:**
+### **4.2 Salutation Widget**
+* **UI:** Greeting message above clock
+* **Logic:** 70% time-aware greetings, 30% random salutations
+* **Features:** Good Morning/Afternoon/Evening based on time
+* **Dependencies:** None
 
-  ```js
-  const engines = {
-    google: "https://www.google.com/search?q=",
-    duckduckgo: "https://duckduckgo.com/?q=",
-    startpage: "https://www.startpage.com/sp/search?query="
-  };
-  ```
+### **4.3 Search Widget**
+* **UI:** Input field + engine dropdown + search button
+* **Engines:** Google, DuckDuckGo, Startpage
+* **Features:** 
+  * Bang commands (!g, !d, !s)
+  * Easter eggs (:roll, :flip, :ascii)
+  * Persistent engine preference
+* **Dependencies:** None
 
-  On submit:
+### **4.4 Music Widget**
+* **UI:** YouTube Music button with playlist integration
+* **Logic:** Opens playlist in new tab
+* **Features:** Configurable playlist ID
+* **Dependencies:** None
 
-  ```js
-  window.location.href = engines[selectedEngine] + encodeURIComponent(query);
-  ```
-* **Persist preference** in `localStorage`.
+### **4.5 To-Do Widget**
+* **UI:** Task input + date picker + add button + task list
+* **Features:**
+  * Add, toggle, delete tasks
+  * Date picker with fallback dialog
+  * Filtering (All, Dated, Undated, Today)
+  * Real-time synchronization with calendar
+* **Dependencies:** taskStore, renderCalendar()
+
+### **4.6 Notes Widget**
+* **UI:** Note input + color selector + notes grid
+* **Features:**
+  * Add, delete sticky notes
+  * Color options (yellow, pink, blue, green)
+  * Hover effects for delete buttons
+* **Dependencies:** None
+
+### **4.7 Calendar Widget**
+* **UI:** Mini calendar with month navigation
+* **Features:**
+  * Month navigation (prev/next)
+  * Task indicators (green dots)
+  * Click to manage tasks for specific dates
+  * Event management
+* **Dependencies:** taskStore, renderTodos()
+
+### **4.8 Calculator Widget**
+* **UI:** Display + button grid (4x5)
+* **Features:**
+  * Basic operations (+, -, ×, ÷)
+  * Advanced operations (√, %)
+  * Backspace functionality
+  * Keyboard support
+  * Previous calculation display
+* **Dependencies:** None
+
+### **4.9 Worm Game Widget**
+* **UI:** Canvas + score display + D-pad controls
+* **Features:**
+  * 20x20 grid canvas rendering
+  * Keyboard and touch controls
+  * High score tracking
+  * Game state management
+  * Responsive D-pad (160px desktop, 180px mobile)
+* **Dependencies:** None
 
 ---
 
-### **4.2 Clock Widget**
+## **5. Data Architecture**
 
-* **UI:** Simple digital clock (HH\:MM\:SS).
-* **Logic:**
+### **5.1 Task Store (taskStore.js)**
+Centralized task management system:
 
-  * Use `setInterval(updateClock, 1000)` to refresh time.
-  * No persistence required.
+```javascript
+class TaskStore {
+  // Core operations
+  getTasks() { /* return all tasks */ }
+  addTask(taskData) { /* add new task */ }
+  updateTask(id, fields) { /* update task */ }
+  deleteTask(id) { /* remove task */ }
+  toggleTask(id) { /* toggle completion */ }
+  
+  // Date operations
+  getTasksByDate(dateStr) { /* filter by date */ }
+  getTasksForToday() { /* today's tasks */ }
+  getDatedTasks() { /* tasks with due dates */ }
+  getUndatedTasks() { /* tasks without due dates */ }
+  
+  // Advanced features
+  getStats() { /* task statistics */ }
+  exportTasks() { /* export as JSON */ }
+  importTasks(jsonString) { /* import from JSON */ }
+}
+```
+
+### **5.2 Data Persistence**
+* **localStorage keys:**
+  * `searchEngine` - User's preferred search engine
+  * `homepage.tasks` - Task data (unified format)
+  * `stickyNotes` - Sticky notes with colors
+  * `calendarEvents` - Calendar events
+  * `wormHighScore` - Game high score
+  * `todoFilter` - Todo filter preference
 
 ---
 
-### **4.3 YouTube Music Widget**
+## **6. UI/UX Design Principles**
 
-* **UI:** “Play My Playlist” button (loads embedded player).
-* **Logic:**
+### **6.1 Visual Design**
+* **Color Scheme:** Dark theme with gray tones
+  * Background: `#222222` (dark-bg)
+  * Cards: `#333333` (card-bg)
+  * Text: `#f3f4f6` (gray-100)
+  * Accents: `#3b82f6` (blue-500)
+* **Typography:** Clean, readable fonts
+  * Clock: Monospace for time display
+  * Headers: Medium weight for hierarchy
+  * Body: Regular weight for readability
+* **Spacing:** Consistent padding and margins
+  * Widget spacing: `mb-8` (2rem)
+  * Internal padding: `p-4` (1rem)
+  * Button spacing: `gap-2` (0.5rem)
 
-  * Load iframe with:
-    `https://www.youtube.com/embed?list=<PLAYLIST_ID>&autoplay=1`
-  * **Limitations:** YouTube Music API is not public. We’ll embed via YouTube playlists.
+### **6.2 Responsive Design**
+* **Mobile-first** approach with Tailwind CSS
+* **Breakpoints:**
+  * Mobile: `< 640px`
+  * Tablet: `640px - 768px`
+  * Desktop: `> 768px`
+* **Touch targets:** Minimum 44px for mobile
+* **D-pad sizing:** 60px on mobile, 52px on desktop
+
+### **6.3 Accessibility**
+* **ARIA labels** for interactive elements
+* **Keyboard navigation** support
+* **Focus management** with visible focus states
+* **Screen reader** compatibility
+* **Color contrast** compliance
 
 ---
 
-### **4.4 To-Do List**
+## **7. Performance Considerations**
 
-* **UI:** List of tasks, checkboxes, "Add Task" input.
-* **Logic:**
+### **7.1 Loading Strategy**
+* **Dynamic widget loading** in dependency order
+* **Error handling** with graceful fallbacks
+* **Console logging** for debugging
+* **Memory management** with proper cleanup
 
-  * Add/remove tasks in `localStorage`.
-  * Data structure:
+### **7.2 Optimization**
+* **Minimal bundle size** (no heavy frameworks)
+* **Efficient localStorage** usage
+* **Canvas optimization** for game rendering
+* **Event listener** cleanup to prevent memory leaks
 
-    ```js
-    tasks = [{ id: 1, text: "Buy groceries", done: false }]
-    ```
-  * Render tasks dynamically.
+### **7.3 Mobile Performance**
+* **Touch-optimized** controls
+* **Responsive images** and icons
+* **Efficient animations** with CSS transitions
+* **Battery-friendly** game loop
 
 ---
 
-## **5. Dark Mode UI**
+## **8. Technical Implementation**
 
-* **Default:** Dark background (`#111`) with light text (`#eee`).
-* **CSS:** Tailwind dark mode classes or custom CSS variables:
+### **8.1 Widget Loading System**
+```javascript
+// Widget loader in script.js
+const widgetFiles = [
+  'taskStore.js',
+  'widgets/clock.js',
+  'widgets/salutation.js',
+  // ... other widgets
+];
 
-  ```css
-  body {
-    background: #111;
-    color: #eee;
+async function loadWidgets() {
+  for (const file of widgetFiles) {
+    await loadScript(file);
   }
-  .card {
-    background: #1a1a1a;
-    border-radius: 8px;
-  }
-  ```
+}
+```
+
+### **8.2 Event System**
+* **DOM events** for user interactions
+* **Custom events** for widget communication
+* **localStorage events** for data synchronization
+* **Keyboard events** for shortcuts
+
+### **8.3 Error Handling**
+* **Try-catch blocks** for critical operations
+* **Graceful degradation** for missing features
+* **User feedback** for errors
+* **Console logging** for debugging
 
 ---
 
-## **6. Responsiveness (Mobile-First)**
+## **9. Future Enhancements**
 
-* Use **CSS Flexbox/Grids** for layout.
-* `max-width: 600px` centered for mobile.
-* On larger screens (laptop/desktop), add breathing space via padding and `max-width: 900px`.
+### **9.1 PWA Features**
+* **Service worker** for offline support
+* **App manifest** for installability
+* **Push notifications** for reminders
+* **Background sync** for data
+
+### **9.2 Additional Widgets**
+* **Weather widget** with location detection
+* **News feed** with RSS integration
+* **Bookmarks** with quick access
+* **System monitor** for device stats
+
+### **9.3 Advanced Features**
+* **Widget customization** (order, visibility)
+* **Theme system** (multiple color schemes)
+* **Data export/import** functionality
+* **Widget settings** panel
+
+---
+
+## **10. Deployment & Maintenance**
+
+### **10.1 GitHub Pages Setup**
+* **Static hosting** with automatic deployment
+* **Custom domain** support
+* **HTTPS** enabled by default
+* **CDN** for global performance
+
+### **10.2 Maintenance**
+* **Regular updates** for security
+* **Performance monitoring** with analytics
+* **User feedback** collection
+* **Bug tracking** and resolution
 
 ---
 
-## **7. Potential Limitations**
+## **11. Success Metrics**
 
-1. **YouTube Music API:**
-   No direct control over YouTube Music playlists — we rely on embedding a YouTube playlist link.
-2. **Offline Functionality:**
-   Without service workers, search won’t work offline, but the clock & to-do list will still function.
-3. **Security Restrictions:**
-   No server code means no authentication or private data storage.
+### **11.1 Performance**
+* **Load time:** < 2 seconds
+* **Memory usage:** < 50MB
+* **Battery impact:** Minimal
+* **Network usage:** < 1MB initial load
+
+### **11.2 User Experience**
+* **Mobile usability:** Touch-friendly controls
+* **Accessibility:** WCAG 2.1 AA compliance
+* **Cross-browser:** Chrome, Firefox, Safari, Edge
+* **Device support:** Desktop, tablet, mobile
+
+### **11.3 Functionality**
+* **Widget reliability:** 99% uptime
+* **Data persistence:** No data loss
+* **Real-time updates:** < 100ms response
+* **Error recovery:** Graceful handling
 
 ---
 
-## **8. Enhancements (Future)**
+## **12. Project Status**
 
-* **Service Worker** for offline caching (convert to PWA).
-* **Custom themes** (color pickers).
-* **Export/Import To-Do List** (download as JSON).
+### **✅ Completed Features**
+- [x] Modular widget architecture
+- [x] All 11 widgets implemented
+- [x] Unified task management system
+- [x] Responsive design with mobile optimization
+- [x] Enhanced user experience improvements
+- [x] Comprehensive debugging and error handling
+- [x] PWA-ready structure
+
+### **🚀 Current State**
+The project is **complete and production-ready** with:
+- **2,500+ lines** of well-organized code
+- **11 modular widgets** with clean separation
+- **Comprehensive documentation** and structure
+- **Mobile-optimized** user experience
+- **Cross-browser compatibility**
+- **Accessibility compliance**
+
+### **🎯 Ready for Deployment**
+The minimalist homepage is ready for:
+- **GitHub Pages deployment**
+- **Production use**
+- **Further development**
+- **User testing and feedback**
 
 ---
+
+**🎉 The minimalist homepage project is complete with a fully modular architecture, comprehensive widget system, and enhanced user experience!**

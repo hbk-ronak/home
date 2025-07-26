@@ -76,7 +76,8 @@ class Calculator {
             '/': { type: 'operation', value: '÷' },
             'Enter': { type: 'equals', value: '=' },
             '=': { type: 'equals', value: '=' },
-            'Escape': { type: 'clear', value: 'C' }
+            'Escape': { type: 'clear', value: 'C' },
+            'Backspace': { type: 'backspace', value: '←' }
         };
         
         if (keyMap[key]) {
@@ -102,6 +103,9 @@ class Calculator {
                 break;
             case 'clear':
                 this.clear(value === 'CE' ? 'entry' : 'all');
+                break;
+            case 'backspace':
+                this.backspace();
                 break;
             case 'equals':
                 this.calculate();
@@ -133,6 +137,19 @@ class Calculator {
         
         if (!this.displayValue.includes('.')) {
             this.displayValue += '.';
+        }
+    }
+    
+    /**
+     * Handle backspace
+     */
+    backspace() {
+        if (this.waitingForOperand) return;
+        
+        if (this.displayValue.length === 1) {
+            this.displayValue = '0';
+        } else {
+            this.displayValue = this.displayValue.slice(0, -1);
         }
     }
     
@@ -203,8 +220,6 @@ class Calculator {
                         return 'Error';
                     }
                     return Math.sqrt(secondValue);
-                case 'x²':
-                    return Math.pow(secondValue, 2);
                 default:
                     return secondValue;
             }

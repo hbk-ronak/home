@@ -194,8 +194,8 @@ html {
 /* D-Pad Controls */
 .dpad-container {
     position: relative;
-    width: 120px;
-    height: 120px;
+    width: 160px;
+    height: 160px;
     display: grid;
     grid-template-areas: 
         ". up ."
@@ -207,8 +207,8 @@ html {
 }
 
 .dpad-btn {
-    width: 40px;
-    height: 40px;
+    width: 52px;
+    height: 52px;
     background: #4b5563;
     border: 2px solid #6b7280;
     border-radius: 6px;
@@ -258,8 +258,8 @@ html {
 
 .dpad-center {
     grid-area: center;
-    width: 40px;
-    height: 40px;
+    width: 52px;
+    height: 52px;
     background: #374151;
     border: 2px solid #6b7280;
     border-radius: 6px;
@@ -269,18 +269,18 @@ html {
 /* Responsive D-pad for mobile */
 @media (max-width: 640px) {
     .dpad-container {
-        width: 140px;
-        height: 140px;
+        width: 180px;
+        height: 180px;
     }
     
     .dpad-btn {
-        width: 48px;
-        height: 48px;
+        width: 60px;
+        height: 60px;
     }
     
     .dpad-center {
-        width: 48px;
-        height: 48px;
+        width: 60px;
+        height: 60px;
     }
 }
 

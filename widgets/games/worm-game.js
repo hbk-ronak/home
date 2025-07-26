@@ -103,7 +103,7 @@ class WormGame {
     loadHighScore() {
         const saved = localStorage.getItem('wormHighScore');
         this.highScore = saved ? parseInt(saved) : 0;
-        this.updateScoreDisplay();
+        // Don't update display here - game manager handles it when switching games
     }
     
     /**
@@ -251,7 +251,11 @@ class WormGame {
         console.log('🍎 Food generated at:', this.food);
         
         // Update displays
-        this.updateScoreDisplay();
+        if (typeof window.updateGameScoreDisplay === 'function') {
+            window.updateGameScoreDisplay();
+        } else {
+            this.updateScoreDisplay();
+        }
         this.updateStatus('Press Start to begin');
         
         // Render initial state

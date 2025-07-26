@@ -29,7 +29,7 @@ class GameWidget {
             'tictactoe': {
                 name: 'Tic-Tac-Toe',
                 icon: 'M6 18L18 6M6 6l12 12',
-                enabled: false, // Will be enabled when implemented
+                enabled: true, // Now enabled
                 module: null
             }
         };
@@ -88,6 +88,7 @@ class GameWidget {
      */
     loadDefaultGame() {
         this.selectGame('worm');
+        // Score display will be updated by selectGame -> initializeGame -> updateScoreDisplayForGame
     }
     
     /**
@@ -150,11 +151,69 @@ class GameWidget {
                 }
                 break;
             case 'tictactoe':
-                // TODO: Initialize tic-tac-toe game when implemented
-                this.currentGame = 'tictactoe';
+                // Create tic-tac-toe game instance
+                if (window.TicTacToe) {
+                    this.currentGame = window.TicTacToe.create();
+                } else {
+                    console.error('TicTacToe class not found');
+                }
                 break;
             default:
                 console.warn('Unknown game type:', gameType);
+        }
+        
+        // Update score display for the new game
+        this.updateScoreDisplayForGame(gameType);
+    }
+    
+    /**
+     * Update score display based on the selected game
+     * @param {string} gameType - Game identifier
+     */
+    updateScoreDisplayForGame(gameType) {
+        const scoreElement = document.getElementById('wormScore');
+        const highScoreElement = document.getElementById('wormHighScore');
+        
+        if (!scoreElement || !highScoreElement) return;
+        
+        switch (gameType) {
+            case 'worm':
+                // Load worm game scores
+                const wormHighScore = localStorage.getItem('wormHighScore') || '0';
+                scoreElement.textContent = 'Score: 0';
+                highScoreElement.textContent = `High Score: ${wormHighScore}`;
+                break;
+            case 'tictactoe':
+                // Load tic-tac-toe scores
+                const ticTacToeScores = localStorage.getItem('tictactoeScores');
+                if (ticTacToeScores) {
+                    const scores = JSON.parse(ticTacToeScores);
+                    scoreElement.textContent = `X: ${scores.X} | O: ${scores.O}`;
+                    highScoreElement.textContent = `Draws: ${scores.draws}`;
+                } else {
+                    scoreElement.textContent = 'X: 0 | O: 0';
+                    highScoreElement.textContent = 'Draws: 0';
+                }
+                break;
+            default:
+                // Clear scores for unknown games
+                scoreElement.textContent = 'Score: 0';
+                highScoreElement.textContent = 'High Score: 0';
+        }
+    }
+    
+    /**
+     * Update score display for the current game
+     * This method can be called by games to update their score display
+     */
+    updateCurrentGameScoreDisplay() {
+        if (this.currentGame) {
+            // Determine the game type from the current game instance
+            if (this.currentGame instanceof window.WormGame) {
+                this.updateScoreDisplayForGame('worm');
+            } else if (this.currentGame instanceof window.TicTacToe) {
+                this.updateScoreDisplayForGame('tictactoe');
+            }
         }
     }
     
@@ -179,4 +238,11 @@ class GameWidget {
 
 // Initialize game widget manager immediately (widget loader ensures DOM is ready)
 let gameWidget;
-gameWidget = new GameWidget(); 
+gameWidget = new GameWidget();
+
+// Make the update method available globally for games to use
+window.updateGameScoreDisplay = () => {
+    if (gameWidget) {
+        gameWidget.updateCurrentGameScoreDisplay();
+    }
+}; 

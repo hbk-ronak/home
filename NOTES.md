@@ -402,25 +402,78 @@ if (typeof gameWidget !== 'undefined') {
 **Result**: Worm game sprites (green squares for worm body, red circle for food) now render correctly.
 
 #### **Phase 3: Tic-Tac-Toe Implementation (Estimated: 3 hours)**
+**Status**: ✅ **COMPLETED**
 
-**3.1 Create `widgets/games/tic-tac-toe.js`**
-- Implement tic-tac-toe game logic
-- Create grid-based rendering system
-- Add turn management
-- Implement win condition checking
+**3.1 Create `widgets/games/tic-tac-toe.js`** ✅
+- ✅ Implement tic-tac-toe game logic
+- ✅ Create grid-based rendering system
+- ✅ Add turn management
+- ✅ Implement win condition checking
 
-**3.2 Tic-Tac-Toe Features**
-- 3x3 grid game board
-- X and O player turns
-- Win detection (rows, columns, diagonals)
-- Draw detection
-- Game reset functionality
-- Score tracking (optional)
+**3.2 Tic-Tac-Toe Features** ✅
+- ✅ 3x3 grid game board
+- ✅ X and O player turns
+- ✅ Win detection (rows, columns, diagonals)
+- ✅ Draw detection
+- ✅ Game reset functionality
+- ✅ Score tracking (X wins, O wins, draws)
 
-**3.3 Game Interface Integration**
-- Implement common game interface
-- Add tic-tac-toe to game selector
-- Test game switching functionality
+**3.3 Game Interface Integration** ✅
+- ✅ Implement common game interface
+- ✅ Add tic-tac-toe to game selector
+- ✅ Test game switching functionality
+
+**Implementation Details**:
+- **Tic-Tac-Toe Game**: `widgets/games/tic-tac-toe.js` (350+ lines) - Complete tic-tac-toe implementation
+- **Game Features**: Click-to-play, keyboard controls (1-9 keys), win detection, score persistence
+- **Visual Design**: Red X's, blue O's, grid lines, win highlighting
+- **Controls**: Mouse clicks on canvas, number keys 1-9 for accessibility
+- **Scoring**: Tracks X wins, O wins, and draws in localStorage
+- **Integration**: Fully integrated with game manager and dropdown selector
+
+### ✅ Phase 3.5: Score Display Fix (COMPLETED)
+**Status**: ✅ **COMPLETED**
+
+**Issue**: When switching between games, the score display was not showing the correct scores for each game.
+
+**Root Cause**: Both games were using the same HTML elements (`wormScore` and `wormHighScore`) but with different score formats, and the games were overriding each other's score displays during initialization and gameplay.
+
+**Fix Applied**:
+- ✅ Added `updateScoreDisplayForGame()` method to game manager
+- ✅ Added `updateCurrentGameScoreDisplay()` method for runtime updates
+- ✅ Created global `window.updateGameScoreDisplay()` function for games to use
+- ✅ Game manager now handles score display updates when switching games
+- ✅ Worm game shows: "Score: 0" and "High Score: X"
+- ✅ Tic-tac-toe shows: "X: 0 | O: 0" and "Draws: 0"
+- ✅ Removed automatic score display updates from game initialization
+- ✅ Games use global method for score updates during gameplay
+- ✅ Fixed bug where tic-tac-toe was showing worm game scores after restart
+
+**Technical Details**:
+```javascript
+// Game manager handles score display for each game type
+updateScoreDisplayForGame(gameType) {
+    switch (gameType) {
+        case 'worm':
+            scoreElement.textContent = 'Score: 0';
+            highScoreElement.textContent = `High Score: ${wormHighScore}`;
+            break;
+        case 'tictactoe':
+            scoreElement.textContent = `X: ${scores.X} | O: ${scores.O}`;
+            highScoreElement.textContent = `Draws: ${scores.draws}`;
+            break;
+    }
+}
+
+// Global method for games to update score display
+window.updateGameScoreDisplay = () => {
+    if (gameWidget) {
+        gameWidget.updateCurrentGameScoreDisplay();
+    }
+};
+```
+
+**Result**: Each game now displays its appropriate score format when selected and maintains correct scores during gameplay.
 
 #### **Phase 4: Testing & Polish (Estimated: 1 hour)**
 

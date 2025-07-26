@@ -432,27 +432,50 @@
         
         <!-- To-Do List Widget -->
         <div class="bg-card-bg rounded-lg p-4">
-            <div class="flex items-center mb-4">
-                <svg class="w-6 h-6 text-gray-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-                </svg>
-                <h2 class="text-xl font-medium text-gray-300">To-Do List</h2>
+            <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center">
+                    <svg class="w-6 h-6 text-gray-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                    </svg>
+                    <h2 class="text-xl font-medium text-gray-300">To-Do List</h2>
+                </div>
+                <div class="relative">
+                    <select 
+                        id="todoFilter" 
+                        class="px-3 py-1 bg-gray-800 border border-gray-600 rounded-lg text-gray-100 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    >
+                        <option value="all">All Tasks</option>
+                        <option value="dated">Dated Tasks</option>
+                        <option value="undated">Undated Tasks</option>
+                        <option value="today">Tasks for Today</option>
+                    </select>
+                </div>
             </div>
             
             <!-- Add Task Form -->
-            <form id="todoForm" class="flex gap-2 mb-4">
-                <input 
-                    type="text" 
-                    id="todoInput" 
-                    placeholder="Add a new task..." 
-                    class="flex-1 px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                >
-                <button 
-                    type="submit" 
-                    class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors duration-200"
-                >
-                    Add
-                </button>
+            <form id="todoForm" class="flex flex-col gap-2 mb-4">
+                <div class="flex gap-2">
+                    <input 
+                        type="text" 
+                        id="todoInput" 
+                        placeholder="Add a new task..." 
+                        class="flex-1 px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    >
+                    <button 
+                        type="submit" 
+                        class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors duration-200"
+                    >
+                        Add
+                    </button>
+                </div>
+                <div class="flex items-center gap-2">
+                    <label for="todoDueDate" class="text-sm text-gray-400">Due Date (optional):</label>
+                    <input 
+                        type="date" 
+                        id="todoDueDate" 
+                        class="px-3 py-1 bg-gray-800 border border-gray-600 rounded-lg text-gray-100 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    >
+                </div>
             </form>
             
             <!-- Todo List -->
@@ -478,6 +501,7 @@
     </div>
     
     <!-- JavaScript -->
+    <script src="taskStore.js"></script>
     <script src="script.js"></script>
 </body>
 </html> 

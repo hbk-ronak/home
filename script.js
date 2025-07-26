@@ -359,53 +359,75 @@ function handleMusicPlay() {
 document.getElementById('playMusicBtn').addEventListener('click', handleMusicPlay);
 
 // ============================================================================
-// TO-DO LIST FUNCTIONALITY (Tickets 5-6)
+// TO-DO LIST FUNCTIONALITY (Tickets 5, 6) - REFACTORED FOR UNIFIED TASK STORE
 // ============================================================================
 
-let todoTasks = [];
+let currentTodoFilter = 'all';
 
 /**
- * Generates a unique ID for todo items
- * @returns {string} Unique ID
- */
-function generateTodoId() {
-    return Date.now().toString(36) + Math.random().toString(36).substr(2);
-}
-
-/**
- * Saves todo tasks to localStorage
- */
-function saveTodos() {
-    localStorage.setItem('todoList', JSON.stringify(todoTasks));
-}
-
-/**
- * Loads todo tasks from localStorage
- */
-function loadTodos() {
-    const saved = localStorage.getItem('todoList');
-    if (saved) {
-        todoTasks = JSON.parse(saved);
-        renderTodos();
-    }
-}
-
-/**
- * Renders all todo tasks to the DOM
+ * Renders all todo tasks to the DOM based on current filter
  */
 function renderTodos() {
     const todoList = document.getElementById('todoList');
+    if (!todoList) return;
+    
     todoList.innerHTML = '';
     
-    todoTasks.forEach(task => {
+    let tasks = [];
+    switch (currentTodoFilter) {
+        case 'dated':
+            tasks = window.taskStore.getDatedTasks();
+            break;
+        case 'undated':
+            tasks = window.taskStore.getUndatedTasks();
+            break;
+        case 'today':
+            tasks = window.taskStore.getTasksForToday();
+            break;
+        default:
+            tasks = window.taskStore.getTasks();
+            break;
+    }
+    
+    tasks.forEach(task => {
         const taskElement = createTodoElement(task);
         todoList.appendChild(taskElement);
     });
 }
 
 /**
+ * Handles todo filter change
+ * @param {Event} event - Change event
+ */
+function handleTodoFilterChange(event) {
+    currentTodoFilter = event.target.value;
+    renderTodos();
+}
+
+/**
+ * Loads todo filter preference from localStorage
+ */
+function loadTodoFilterPreference() {
+    const savedFilter = localStorage.getItem('todoFilter');
+    if (savedFilter) {
+        currentTodoFilter = savedFilter;
+        const filterSelect = document.getElementById('todoFilter');
+        if (filterSelect) {
+            filterSelect.value = currentTodoFilter;
+        }
+    }
+}
+
+/**
+ * Saves todo filter preference to localStorage
+ */
+function saveTodoFilterPreference() {
+    localStorage.setItem('todoFilter', currentTodoFilter);
+}
+
+/**
  * Creates a DOM element for a todo task
- * @param {Object} task - Task object with id, text, and completed properties
+ * @param {Object} task - Task object with id, text, completed, and dueDate properties
  * @returns {HTMLElement} Task element
  */
 function createTodoElement(task) {
@@ -421,6 +443,14 @@ function createTodoElement(task) {
     const textSpan = document.createElement('span');
     textSpan.className = `flex-1 ${task.completed ? 'line-through text-gray-500' : 'text-gray-200'}`;
     textSpan.textContent = task.text;
+    
+    // Add due date display if present
+    if (task.dueDate) {
+        const dueDateSpan = document.createElement('span');
+        dueDateSpan.className = `text-xs ${task.completed ? 'text-gray-500' : 'text-blue-400'}`;
+        dueDateSpan.textContent = ` (${formatDate(task.dueDate)})`;
+        textSpan.appendChild(dueDateSpan);
+    }
     
     const deleteBtn = document.createElement('button');
     deleteBtn.className = 'text-red-400 hover:text-red-300 transition-colors duration-200';
@@ -441,22 +471,22 @@ function createTodoElement(task) {
 /**
  * Adds a new todo task
  * @param {string} text - Task text
+ * @param {string|null} dueDate - Due date in 'YYYY-MM-DD' format (optional)
  */
-function addTodo(text) {
+function addTodo(text, dueDate = null) {
     if (!text.trim()) {
         alert('Please enter a task');
         return;
     }
     
-    const newTask = {
-        id: generateTodoId(),
+    const taskData = {
         text: text.trim(),
-        completed: false
+        dueDate: dueDate
     };
     
-    todoTasks.push(newTask);
-    saveTodos();
+    window.taskStore.addTask(taskData);
     renderTodos();
+    renderCalendar(); // Update calendar to show new task
 }
 
 /**
@@ -464,12 +494,9 @@ function addTodo(text) {
  * @param {string} taskId - Task ID to toggle
  */
 function toggleTodo(taskId) {
-    const task = todoTasks.find(t => t.id === taskId);
-    if (task) {
-        task.completed = !task.completed;
-        saveTodos();
-        renderTodos();
-    }
+    window.taskStore.toggleTask(taskId);
+    renderTodos();
+    renderCalendar(); // Update calendar to reflect completion
 }
 
 /**
@@ -477,9 +504,9 @@ function toggleTodo(taskId) {
  * @param {string} taskId - Task ID to delete
  */
 function deleteTodo(taskId) {
-    todoTasks = todoTasks.filter(t => t.id !== taskId);
-    saveTodos();
+    window.taskStore.deleteTask(taskId);
     renderTodos();
+    renderCalendar(); // Update calendar to remove task
 }
 
 /**
@@ -490,16 +517,36 @@ function handleTodoSubmit(event) {
     event.preventDefault();
     
     const input = document.getElementById('todoInput');
+    const dateInput = document.getElementById('todoDueDate');
     const text = input.value;
+    const dueDate = dateInput.value || null;
     
-    addTodo(text);
+    addTodo(text, dueDate);
     input.value = '';
+    dateInput.value = '';
     input.focus();
+}
+
+/**
+ * Formats a date string for display
+ * @param {string} dateStr - Date in 'YYYY-MM-DD' format
+ * @returns {string} Formatted date string
+ */
+function formatDate(dateStr) {
+    // Parse the date string properly to avoid timezone issues
+    const [year, month, day] = dateStr.split('-').map(Number);
+    const date = new Date(year, month - 1, day); // month is 0-indexed in Date constructor
+    
+    return date.toLocaleDateString('en-US', { 
+        month: 'short', 
+        day: 'numeric' 
+    });
 }
 
 // Initialize todo functionality
 document.getElementById('todoForm').addEventListener('submit', handleTodoSubmit);
-loadTodos();
+document.getElementById('todoFilter').addEventListener('change', handleTodoFilterChange);
+loadTodoFilterPreference();
 
 // ============================================================================
 // STICKY NOTES FUNCTIONALITY (Ticket 11)
@@ -734,6 +781,41 @@ function showEventModal(dateKey, currentEvent = '') {
 }
 
 /**
+ * Shows task input modal
+ * @param {string} dateKey - Date key in YYYY-MM-DD format
+ * @param {Array} tasksForDate - Array of task objects for this date
+ */
+function showTaskModal(dateKey, tasksForDate) {
+    const taskText = prompt(
+        tasksForDate.length > 0 ? 'Edit tasks for this date:' : 'Add tasks for this date:',
+        tasksForDate.map(task => `${task.text} (Completed: ${task.completed ? 'Yes' : 'No'})`).join('\n')
+    );
+
+    if (taskText !== null) {
+        const newTasks = taskText.split('\n').map(line => {
+            const parts = line.trim().split(' ');
+            const text = parts.slice(0, -1).join(' '); // Get text before completion status
+            const completed = parts.slice(-1)[0] === 'Completed: Yes';
+            return { text: text, completed: completed };
+        });
+
+        // Filter out empty lines and invalid lines
+        const validTasks = newTasks.filter(task => task.text.trim() !== '');
+
+        if (validTasks.length > 0) {
+            window.taskStore.addTasksForDate(dateKey, validTasks);
+            renderTodos(); // Re-render todos to show new tasks
+            renderCalendar(); // Re-render calendar to show task indicators
+        } else if (tasksForDate.length > 0) {
+            // If user cancelled and there were tasks, remove them
+            window.taskStore.deleteTasksForDate(dateKey);
+            renderTodos();
+            renderCalendar();
+        }
+    }
+}
+
+/**
  * Generates calendar days for a given month
  * @param {number} year - Year
  * @param {number} month - Month (0-11)
@@ -755,6 +837,12 @@ function generateCalendarDays(year, month) {
         const isToday = new Date().toDateString() === new Date(year, month, day).toDateString();
         const hasEvent = calendarEvents[dateKey];
         
+        // Check for tasks on this date using task store
+        const tasksForDate = window.taskStore.getTasksByDate(dateKey);
+        const hasTasks = tasksForDate.length > 0;
+        const completedTasks = tasksForDate.filter(task => task.completed).length;
+        const pendingTasks = tasksForDate.length - completedTasks;
+        
         days.push({ 
             day: day, 
             isEmpty: false, 
@@ -762,7 +850,11 @@ function generateCalendarDays(year, month) {
             isCurrentMonth: true,
             dateKey: dateKey,
             hasEvent: hasEvent,
-            eventText: hasEvent
+            eventText: hasEvent,
+            hasTasks: hasTasks,
+            tasksForDate: tasksForDate,
+            completedTasks: completedTasks,
+            pendingTasks: pendingTasks
         });
     }
     
@@ -813,22 +905,49 @@ function renderCalendar() {
                 className += ' text-gray-300';
             }
             
-            // Add event indicator
+            // Add event indicator (legacy calendar events)
             if (dayObj.hasEvent) {
                 className += ' after:content-[""] after:absolute after:bottom-1 after:right-1 after:w-1 after:h-1 after:bg-yellow-400 after:rounded-full';
+            }
+            
+            // Add task indicator (new unified task system)
+            if (dayObj.hasTasks) {
+                // Show green dot for tasks, with different styling based on completion
+                const taskIndicatorClass = dayObj.pendingTasks > 0 
+                    ? 'after:bg-green-400' // Pending tasks
+                    : 'after:bg-green-600'; // All completed
+                
+                className += ` after:content-[""] after:absolute after:bottom-1 after:left-1 after:w-1 after:h-1 after:rounded-full ${taskIndicatorClass}`;
             }
             
             dayElement.className = className;
             dayElement.textContent = dayObj.day;
             
-            // Add click handler for event management
+            // Add click handler for task/event management
             dayElement.addEventListener('click', () => {
-                showEventModal(dayObj.dateKey, dayObj.eventText);
+                if (dayObj.hasTasks) {
+                    showTaskModal(dayObj.dateKey, dayObj.tasksForDate);
+                } else if (dayObj.hasEvent) {
+                    showEventModal(dayObj.dateKey, dayObj.eventText);
+                } else {
+                    showTaskModal(dayObj.dateKey, []);
+                }
             });
             
-            // Add tooltip for events
+            // Add tooltip for tasks and events
+            let tooltipText = '';
+            if (dayObj.hasTasks) {
+                tooltipText += `${dayObj.tasksForDate.length} task(s)`;
+                if (dayObj.pendingTasks > 0) {
+                    tooltipText += ` (${dayObj.pendingTasks} pending)`;
+                }
+            }
             if (dayObj.hasEvent) {
-                dayElement.title = dayObj.eventText;
+                if (tooltipText) tooltipText += '\n';
+                tooltipText += dayObj.eventText;
+            }
+            if (tooltipText) {
+                dayElement.title = tooltipText;
             }
         }
         
@@ -857,6 +976,9 @@ document.getElementById('prevMonth')?.addEventListener('click', previousMonth);
 document.getElementById('nextMonth')?.addEventListener('click', nextMonth);
 loadCalendarEvents();
 renderCalendar();
+
+// Initialize todo functionality with task store
+renderTodos();
 
 // ============================================================================
 // DATA MANAGEMENT (Ticket 2)
